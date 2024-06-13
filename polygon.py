@@ -94,7 +94,7 @@ class Polygon():
 
 if __name__ == "__main__":
     p = Polygon()
-    r = p.normpoly(4)
+    r = p.regpoly(4)
     print(r)
     p.graphpoly(r)
     

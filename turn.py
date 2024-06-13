@@ -1,25 +1,18 @@
 import turning_function
 import statistics as stat
-from polygon import Polygon
 import matplotlib.pyplot as plt
 
-p = Polygon()
-shape_a = p.regpoly(10)
-shape_b = p.randpoly(10)
-
-def turning_distance(shape_a, shape_b):
-    distance, _, _, _ = turning_function.distance(shape_a, shape_b, brute_force_updates=False)
-    return distance
+from polygon import Polygon
 
 def multi_turning(regpoly, normpoly, iterations=1):
-    return [turning_distance(regpoly, normpoly) for _ in range(iterations)]
+    return [turning_function.distance(regpoly, normpoly, brute_force_updates=False)[0] for _ in range(iterations)]
 
 if __name__ == "__main__":
     p = Polygon()
     sides = []
     turn_dist = []
     prevpoly = p.regpoly(2)
-    for i in range(3, 1000):
+    for i in range(3, 100):
         print(i)
         sides.append(i)
         newpoly = p.regpoly(i)
@@ -28,7 +21,7 @@ if __name__ == "__main__":
         
     fig = plt.figure()
     ax = fig.add_subplot()
-    # ax.set_yscale('log')
+    ax.set_yscale('log')
     
     plt.plot(sides, turn_dist)
         
