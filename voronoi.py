@@ -24,12 +24,11 @@ class Voronoi_Utils:
 
         plt.show()
     
-    def plot_turn_dists(self, x_vals, y_vals, N):
+    def plot_turn_dists(self, x_vals, y_vals, N, yerr):
         plt.scatter(x_vals, y_vals)
         plt.xlabel("Number of cells")
         plt.ylabel("Mean average turning distance")
         plt.title("Average turning distance on Voronoi diagrams")
-        yerr = np.std(y_vals) / np.sqrt(30)
         plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='o')
         plt.xticks(np.arange(0, N+1, step=100))
         plt.show()
@@ -38,7 +37,8 @@ if __name__ == "__main__":
     v = Voronoi_Utils()
     x_vals = []
     means = []
-    N = 100
+    deviations = []
+    N = 1000
     step = 50
     rounds = range(1, 31)
     np.random.seed([1938430])
@@ -56,7 +56,9 @@ if __name__ == "__main__":
             )
             tds = v.turn_dists(cells)
             dists.append(np.mean(tds))
+        deviations.append(np.std(dists) / np.sqrt(rounds[-1]))
         x_vals.extend([n])
         means.append(np.mean(dists))
     
-    v.plot_turn_dists(x_vals, means, N)
+    print(deviations)
+    v.plot_turn_dists(x_vals, means, N, deviations)

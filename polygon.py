@@ -3,7 +3,7 @@ import numpy as np
 
 class Polygon():
     """
-    Creates a regular polygon with an initial number of sides
+    Creates a polygon with an initial number of sides
     """    
 
     def regpoly(self, n):
