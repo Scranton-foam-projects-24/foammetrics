@@ -2,7 +2,6 @@ import numpy as np
 import pyvoro
 import turning_function
 import matplotlib.pyplot as plt
-import statistics as stat
 
 from polygon import Polygon
 
@@ -56,8 +55,8 @@ if __name__ == "__main__":
             periodic = [True, True]
             )
             tds = v.turn_dists(cells)
-            dists.append(stat.fmean(tds))
+            dists.append(np.mean(tds))
         x_vals.extend([n])
-        means.append(stat.fmean(dists))
+        means.append(np.mean(dists))
     
     v.plot_turn_dists(x_vals, means, N)
