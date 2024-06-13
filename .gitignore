@@ -1,2 +1,5 @@
-# spyder config files
+# python files
+__pycache__/
+
+# spyder files
 .spyproject

@@ -1,6 +1,5 @@
-import math
 import matplotlib.pyplot as plt
-import random
+import numpy as np
 
 class Polygon():
     """
@@ -22,10 +21,10 @@ class Polygon():
         side_len = 1/n
     
         # Radius of circumcircle, also vertex to centroid distance.
-        radii = [((side_len/2)/(math.sin(math.pi/n)))] * n
+        radii = [((side_len/2)/(np.sin(np.pi/n)))] * n
         
         # Calculate angle at origin which separates each point
-        angles = [((2 * math.pi)/n)] * n
+        angles = [((2 * np.pi)/n)] * n
     
         return self.poly(angles, radii)
     
@@ -51,8 +50,8 @@ class Polygon():
         plt.show()
         
     def randpoly(self, n):
-        x_coords = [random.uniform(-1, 1) for _ in range(n)]
-        y_coords = [random.uniform(-1, 1) for _ in range(n)]
+        x_coords = [np.random.uniform(-1, 1) for _ in range(n)]
+        y_coords = [np.random.uniform(-1, 1) for _ in range(n)]
         points = [list(a) for a in zip(x_coords, y_coords)]
 
         return points            
@@ -69,8 +68,8 @@ class Polygon():
             y = points[-1][1]
             
             # Rotate a line connecting the last point and the origin about the origin
-            x_prime = x * math.cos(angle) - y * math.sin(angle)
-            y_prime = y * math.cos(angle) + x * math.sin(angle)
+            x_prime = x * np.cos(angle) - y * np.sin(angle)
+            y_prime = y * np.cos(angle) + x * np.sin(angle)
                         
             radii_ratio = radii[i]/radii[i-1]
             
@@ -82,19 +81,20 @@ class Polygon():
         return points
     
     def normpoly(self, n, mu=0.0, sigma=0.01):
-        initpoly = self.regpoly(n)
+        initpoly = self.regpoly(n)[0:-1]
         
         points = []
         for x,y in initpoly:
-            x += random.normalvariate(mu, sigma)
-            y += random.normalvariate(mu, sigma)
+            np.random.normal
+            x += np.random.normal(mu, sigma)
+            y += np.random.normal(mu, sigma)
             points.append((x,y))
         
         return points
 
 if __name__ == "__main__":
     p = Polygon()
-    r = p.regpoly(4)
+    r = p.normpoly(4)
     print(r)
     p.graphpoly(r)
     
