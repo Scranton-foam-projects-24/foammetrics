@@ -24,29 +24,30 @@ class Voronoi_Utils:
 
         plt.show()
     
-    def plot_turn_dists(self, x_vals, y_vals, N, yerr):
+    def plot_turn_dists(self, x_vals, y_vals, N, yerr, start=0):
         plt.scatter(x_vals, y_vals)
         plt.xlabel("Number of cells")
         plt.ylabel("Mean average turning distance")
         plt.title("Average turning distance on Voronoi diagrams")
         plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='o')
-        plt.xticks(np.arange(0, N+1, step=100))
+        plt.xticks(np.arange(start, N+1, step=100))
         plt.show()
-
-if __name__ == "__main__":
+        
+def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
+    init_num = dots_num-50
     v = Voronoi_Utils()
     x_vals = []
     means = []
     deviations = []
-    N = 1000
-    step = 50
-    rounds = range(1, 31)
+    N = dots_num
+    step = step
+    rounds = range(1, rounds+1)
     np.random.seed([1938430])
-    for n in range(50, N+1, step):
-        print(n)
+    for n in range(init_num, N+1, step):
+        # print(n)
         dists = []
         for round in rounds:
-            print(f"dots_num = {n} --> round = {round}") 
+            # print(f"dots_num = {n} --> round = {round}") 
             points = np.random.rand(n, 2)
             cells = pyvoro.compute_2d_voronoi(
             points, # point positions, 2D vectors this time.
@@ -60,5 +61,14 @@ if __name__ == "__main__":
         x_vals.extend([n])
         means.append(np.mean(dists))
     
-    print(deviations)
-    v.plot_turn_dists(x_vals, means, N, deviations)
+    # print(deviations)
+    # print(f"graphing: {dots_num}")
+    # v.plot_turn_dists(x_vals, means, N, deviations)
+    return (x_vals, means, N, deviations)
+
+def foo(bar, result, index):
+    print( 'hello {0} from {1}'.format(bar, index))
+    result[index] = "foo"
+
+if __name__ == "__main__":
+    print("Don't run this file!")

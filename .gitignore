@@ -3,3 +3,6 @@ __pycache__/
 
 # spyder files
 .spyproject
+
+# extraneous files
+Figures/
