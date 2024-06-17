@@ -34,7 +34,7 @@ class Voronoi_Utils:
         plt.ylabel("Mean average turning distance")
         plt.title("Average turning distance on Voronoi diagrams")
         plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='o')
-        plt.xticks(np.arange(start, N+1, step=100))
+        plt.xticks(np.arange(start, N+1, step=1000))
         plt.show()
         
 def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
