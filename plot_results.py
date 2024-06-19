@@ -15,18 +15,27 @@ with open("results.txt") as input:
         y_vals.append(float(y))
         yerr.append(float(e))
 
-plt.scatter(x_vals, y_vals, color="blue", zorder=1, label="Average")
+less_x_vals = []
+less_y_vals = []
+less_yerr = []
+for i in range(4, len(x_vals), 5):
+    print(i)
+    less_x_vals.append(x_vals[i])
+    less_y_vals.append(y_vals[i])
+    less_yerr.append(yerr[i])
+    
+print(less_x_vals)
+
+plt.scatter(less_x_vals, less_y_vals, color="black")
 plt.plot(
-    x_vals, 
-    np.poly1d(np.polyfit(x_vals, y_vals, 1))(x_vals), 
-    color="red", 
-    zorder=3, 
-    label=np.poly1d(np.polyfit(x_vals, y_vals, 1))
+    less_x_vals, 
+    less_y_vals,
+    color="blue",
+    linestyle='dashed'
 )
 plt.xlabel("Number of cells")
-plt.legend()
 plt.ylabel("Mean average turning distance")
 plt.title("Average turning distance on Voronoi diagrams")
-plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='o')
+plt.errorbar(less_x_vals, less_y_vals, yerr=less_yerr, fmt='o')
 plt.xticks(np.arange(0, N+1, step=1000))
 plt.show()
