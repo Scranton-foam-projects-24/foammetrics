@@ -1,6 +1,5 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-import numpy as np
 
 def odd_cell(G, m, n, pos, N):
     zero = (4*n)-4
@@ -42,20 +41,19 @@ def even_cell(G, m, n, pos, N):
     pos[five] = (0.5+m, n-(m*scale))
     G.add_edges_from(edge_list)
     
-
-
 G = nx.Graph()
 pos = {}
-M = 10
-N = 7
+M = 4
+N = 3
 for m in range(0,M):
-    col = m * ( (N +1))
+    col = m * (N+1)
     for n in range(1, N+1):
+        # col = N
         if n % 2 == 1:
             odd_cell(G, m, n+col, pos, N)
         else:
             even_cell(G, m, n+col, pos, N)
-
+# nx.draw(G, pos=pos, with_labels=True, node_size=300)
 nx.draw(G, pos=pos, with_labels=False, node_size=0)
 plt.axis('scaled')
 plt.show()
