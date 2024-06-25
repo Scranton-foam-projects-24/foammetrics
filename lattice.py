@@ -13,7 +13,7 @@ def even_cell(G, m, n, pos, shapes, N):
                  (two,three), (zero,five), (three,five),
                  (three,four), (five,four)]
     xscale = m
-    yscale = -1 * (2*N + 4) - 2*N*m
+    yscale = -1 * (N*2)*m
     pos[zero] = (1.0+xscale, ((2*n)-1)+(yscale))
     pos[one] = (0.5+xscale, ((2*n)-2)+(yscale))
     pos[two] = (0.0+xscale, ((2*n)-1)+(yscale))
@@ -38,7 +38,7 @@ def odd_cell(G, m, n, pos, shapes, N):
                  (two,three), (zero,five), (three,five),
                  (three,four), (five,four)]
     xscale = m
-    yscale = -1 * (2*N + 4) - 2*N*m
+    yscale = -1 * (N*2)*m
     pos[zero] = (0.5+xscale, ((2*n)-1)+(yscale))
     pos[one] = (1.0+xscale, ((2*n)-2)+(yscale))
     pos[two] = (1.5+xscale, ((2*n)-1)+(yscale))
