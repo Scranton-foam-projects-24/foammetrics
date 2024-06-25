@@ -35,23 +35,27 @@ class Voronoi_Utils:
 
         plt.show()
     
-    def plot_turn_dists(self, x_vals, y_vals, N, yerr, start=0, log_scale=False):
+    def plot_turn_dists(self, x_vals, y_vals, N, yerr, start=0, log_scale=False, label_weighted=False):
         data = np.array(list(zip(x_vals, y_vals)))
-        print(data)
+        # print(data)
         x, y = np.transpose(data)
         colors = ['blue', 'orange']
         for value in np.unique(x):
             mask = (x == value)
             plt.scatter(x[mask], y[mask], color=colors)
+        if label_weighted:
+            plt.ylabel("Mean sum turning distance")
+            plt.suptitle("Weighted average turning distance on Voronoi diagrams")
+        else:
+            plt.ylabel("Mean average turning distance")
+            plt.suptitle("Average turning distance on Voronoi diagrams")
         plt.xlabel("Number of cells")
-        plt.ylabel("Mean average turning distance")
-        plt.suptitle("Average turning distance on Voronoi diagrams")
-        plt.title("blue => k-gon, orange => hexagon")
+        plt.title("blue => k-gon, orange => 6-gon")
         plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='None', ecolor=colors)
         with open("weighted_yerr.txt", "w+") as output:
             for i, val in enumerate(yerr):
                 output.write(f"({x[i]}, {y[i]}) [{colors[i%2]}] " + str(val) + "\n")
-        plt.xticks(np.arange(start, N+1, step=1000))
+        plt.xticks(np.arange(start, N+1, step=50))
         if log_scale:
             plt.yscale("log")
         plt.show()
@@ -79,7 +83,7 @@ def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
             tds = v.turn_dists(cells)
             dists.append(np.mean(tds))
         deviations.append(np.std(dists) / np.sqrt(rounds[-1]))
-        x_vals.extend([n])
+        x_vals.append(n)
         means.append(np.mean(dists))
         
     return (x_vals, means, N, deviations)
@@ -122,15 +126,14 @@ if __name__ == "__main__":
     x_vals = []
     means = []
     deviations = []
-    deviations_kgon = []
     N = 100
     step = 50
     rounds = range(1, 31)
     np.random.seed([1938430])
     weighted=False
     for n in range(init_num, N+1, step):
-        dists = []
-        dists_kgon = []
+        dists = [] # Contains r turning distances 
+        dists_kgon = [] # Contains r turning distances
         for round in rounds:
             points = np.random.rand(n, 2)
             cells = pyvoro.compute_2d_voronoi(
@@ -140,11 +143,13 @@ if __name__ == "__main__":
                 periodic = [True, True]
             )
             tds = v.turn_dists_n_gon(cells, weight_by_volume=weighted)
-            print(f"SUM: {np.sum(tds)}")
-            dists.append(np.mean(tds))
-            tds = v.turn_dists_n_gon(cells, n=6, weight_by_volume=weighted)
-            print(f"SUM: {np.sum(tds)}")
-            dists_kgon.append(np.mean(tds))
+            kgon_tds = v.turn_dists_n_gon(cells, n=6, weight_by_volume=weighted)
+            if weighted:
+                dists.append(np.sum(tds))
+                dists_kgon.append(np.sum(kgon_tds))
+            else:
+                dists.append(np.mean(tds))
+                dists_kgon.append(np.mean(kgon_tds))
         deviations.append(np.std(dists) / np.sqrt(rounds[-1]))
         deviations.append(np.std(dists_kgon) / np.sqrt(rounds[-1]))
         x_vals.append(n)
@@ -152,5 +157,5 @@ if __name__ == "__main__":
         means.append(np.mean(dists))
         means.append(np.mean(dists_kgon))
         
-    v.plot_turn_dists(x_vals, means, N, deviations, log_scale=weighted)
+    v.plot_turn_dists(x_vals, means, N, deviations, log_scale=False, label_weighted=weighted)
     winsound.MessageBeep()
