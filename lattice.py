@@ -57,6 +57,8 @@ pos = {}
 shapes = {}
 M = 40
 N = 20
+U = 1
+V = 1
 for m in range(0,M):
     for n in range(0, N):
         idx = (N * m) + n

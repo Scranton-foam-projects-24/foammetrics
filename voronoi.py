@@ -35,7 +35,7 @@ class Voronoi_Utils:
 
         plt.show()
     
-    def plot_turn_dists(self, x_vals, y_vals, N, yerr, start=0, log_scale=False, label_weighted=False):
+    def plot_turn_dists(self, x_vals, y_vals, N, yerr, start=0, log_scale=False, label_weighted=False, n_gon_sides=-1):
         data = np.array(list(zip(x_vals, y_vals)))
         # print(data)
         x, y = np.transpose(data)
@@ -50,7 +50,10 @@ class Voronoi_Utils:
             plt.ylabel("Mean average turning distance")
             plt.suptitle("Average turning distance on Voronoi diagrams")
         plt.xlabel("Number of cells")
-        plt.title("blue => k-gon, orange => 6-gon")
+        if n_gon_sides == -1:
+            plt.title("blue => k-gon, orange => n-gon")
+        else:
+            plt.title(f"blue => k-gon, orange => {n_gon_sides}-gon")
         plt.errorbar(x_vals, y_vals, yerr=yerr, fmt='None', ecolor=colors)
         with open("weighted_yerr.txt", "w+") as output:
             for i, val in enumerate(yerr):
@@ -131,6 +134,7 @@ if __name__ == "__main__":
     rounds = range(1, 31)
     np.random.seed([1938430])
     weighted=False
+    n_gon_sides = 1023
     for n in range(init_num, N+1, step):
         dists = [] # Contains r turning distances 
         dists_kgon = [] # Contains r turning distances
@@ -143,7 +147,7 @@ if __name__ == "__main__":
                 periodic = [True, True]
             )
             tds = v.turn_dists_n_gon(cells, weight_by_volume=weighted)
-            kgon_tds = v.turn_dists_n_gon(cells, n=6, weight_by_volume=weighted)
+            kgon_tds = v.turn_dists_n_gon(cells, n=n_gon_sides, weight_by_volume=weighted)
             if weighted:
                 dists.append(np.sum(tds))
                 dists_kgon.append(np.sum(kgon_tds))
@@ -157,5 +161,12 @@ if __name__ == "__main__":
         means.append(np.mean(dists))
         means.append(np.mean(dists_kgon))
         
-    v.plot_turn_dists(x_vals, means, N, deviations, log_scale=False, label_weighted=weighted)
+    v.plot_turn_dists(
+        x_vals, 
+        means, 
+        N, 
+        deviations, 
+        label_weighted=weighted,
+        n_gon_sides=n_gon_sides
+    )
     winsound.MessageBeep()
