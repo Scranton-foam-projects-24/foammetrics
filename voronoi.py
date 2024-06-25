@@ -38,6 +38,7 @@ class Voronoi_Utils:
                 brute_force_updates=False
             )
             if weight_by_volume:
+                print(cell['volume'])
                 turn_distances.append(dist * cell['volume'])
             else:
                 turn_distances.append(dist)
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     means = []
     deviations = []
     deviations_kgon = []
-    N = 1000
+    N = 100
     step = 50
     rounds = range(1, 31)
     np.random.seed([1938430])
