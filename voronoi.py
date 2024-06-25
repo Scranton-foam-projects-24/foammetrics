@@ -10,22 +10,7 @@ class Voronoi_Utils:
     def __init__(self):
         self.p = Polygon()
     
-    def turn_dists(self, cells, weight_by_volume=False):
-        turn_distances = []
-        for i, cell in enumerate(cells):    
-            polygon = cell['vertices']
-            dist, _, _, _ = turning_function.distance(
-                polygon, 
-                self.p.regpoly(len(polygon)), 
-                brute_force_updates=False
-            )
-            if weight_by_volume:
-                turn_distances.append(dist * cell['volume'])
-            else:
-                turn_distances.append(dist)
-        return turn_distances
-    
-    def turn_dists_n_gon(self, cells, n, weight_by_volume=False):
+    def turn_dists_n_gon(self, cells, n=-1, weight_by_volume=False):
         turn_distances = []
         comp_poly = self.p.regpoly(n) if n != -1 else None
         for i, cell in enumerate(cells): 
@@ -38,7 +23,6 @@ class Voronoi_Utils:
                 brute_force_updates=False
             )
             if weight_by_volume:
-                print(cell['volume'])
                 turn_distances.append(dist * cell['volume'])
             else:
                 turn_distances.append(dist)
@@ -143,7 +127,7 @@ if __name__ == "__main__":
     step = 50
     rounds = range(1, 31)
     np.random.seed([1938430])
-    weighted=True
+    weighted=False
     for n in range(init_num, N+1, step):
         dists = []
         dists_kgon = []
@@ -155,9 +139,11 @@ if __name__ == "__main__":
                 2.0, # block size
                 periodic = [True, True]
             )
-            tds = v.turn_dists_n_gon(cells, -1, weight_by_volume=weighted)
+            tds = v.turn_dists_n_gon(cells, weight_by_volume=weighted)
+            print(f"SUM: {np.sum(tds)}")
             dists.append(np.mean(tds))
-            tds = v.turn_dists_n_gon(cells, 6, weight_by_volume=weighted)
+            tds = v.turn_dists_n_gon(cells, n=6, weight_by_volume=weighted)
+            print(f"SUM: {np.sum(tds)}")
             dists_kgon.append(np.mean(tds))
         deviations.append(np.std(dists) / np.sqrt(rounds[-1]))
         deviations.append(np.std(dists_kgon) / np.sqrt(rounds[-1]))

@@ -55,18 +55,17 @@ G = nx.Graph()
 S = nx.Graph()
 pos = {}
 shapes = {}
-M = 20
+M = 40
 N = 20
 for m in range(0,M):
     for n in range(0, N):
         idx = (N * m) + n
-        print("idx:", idx)
         if n % 2 == 0:
             even_cell(G, m, idx, pos, shapes, N)
         else:
             odd_cell(G, m, idx, pos, shapes, N)
-for shape in shapes:
-    print(f"{shape}: {shapes[shape]}")
+# for shape in shapes:
+#     print(f"{shape}: {shapes[shape]}")
 # nx.draw(G, pos=pos, with_labels=True, node_size=300)
 nx.draw(G, pos=pos, with_labels=False, node_size=0)
 plt.axis('scaled')
