@@ -2,6 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 
+# TODO: Remove duplicate vertices & edges
+
 def even_cell(G, m, n, pos, shapes, N):
     n += 1
     zero = (4*n)-4+(2*m)
@@ -49,6 +51,8 @@ def odd_cell(G, m, n, pos, shapes, N):
     add_shapes(pos, shapes, n-1)
 
 def add_shapes(pos, shapes, n):
+    # TODO: Only add valid adjacent cells. Negative cells should be removed.
+    #       Also remove illegal adjacenies.
     n += 1
     zero = (4*n)-4+(2*m)
     one = (4*n)-3+(2*m)
@@ -124,8 +128,8 @@ G = nx.Graph()
 S = nx.Graph()
 pos = {}
 shapes = []
-M = 2
-N = 2
+M = 1
+N = 1
 U = 1
 V = 1
 for m in range(0,M):
@@ -135,10 +139,8 @@ for m in range(0,M):
             even_cell(G, m, idx, pos, shapes, N)
         else:
             odd_cell(G, m, idx, pos, shapes, N)
-# for shape in shapes:
-#     print(f"{shape}: {shapes[shape]}")
+# Show nodes and labels for debugging
 nx.draw(G, pos=pos, with_labels=True, node_size=300)
-# nx.draw(G, pos=pos, with_labels=False, node_size=0)
+# nx.draw(G, pos=pos, node_size=0)
 plt.axis('scaled')
-print(shapes)
 plt.show()
