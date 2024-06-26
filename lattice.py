@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
 def even_cell(G, m, n, pos, shapes, N):
     n += 1
@@ -22,9 +23,68 @@ def even_cell(G, m, n, pos, shapes, N):
     pos[five] = (1.0+xscale, (2*n)+(yscale))
     G.add_edges_from(edge_list)
     
-    shapes[(n*3)-3] = [(one, zero), (zero, two), (two, one)]
-    shapes[(n*3)-2] = [(zero, five), (five, three), (three, two), (two, zero)]
-    shapes[(n*3)-1] = [(four, three), (three, five), (five, four)]
+    # Bottom Triangle
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-3 + (N*3)-1, 'vertices': [one, zero]},
+        {'adjacent_cell': (n*3)-2, 'vertices': [zero, two]},
+        {'adjacent_cell': (n*3)-4, 'vertices': [two, one]},
+       
+      ],
+      'original': np.array([
+          (pos[zero][0]+pos[one][0]+pos[two][0])/3,
+          (pos[zero][1]+pos[one][1]+pos[two][1])/3
+          ]),
+      'vertices':
+      [
+        np.array([pos[one][0], pos[one][1]]),
+        np.array([pos[zero][0], pos[zero][1]]),
+        np.array([pos[two][0], pos[two][1]])
+      ],
+      'volume': np.sqrt(3)/4,
+      'adjacency':[[one, zero], [zero, two], [two, one]]
+      })
+        
+    # Square
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-2 - (N*3), 'vertices': [zero, five]},
+        {'adjacent_cell': (n*3)-1, 'vertices': [five, three]},
+        {'adjacent_cell': (n*3)-2 + (N*3), 'vertices': [three, two]},
+        {'adjacent_cell': (n*3)-3, 'vertices': [two, zero]},
+      ],
+      'original': np.array([(pos[zero][0]+pos[two][0])/2, (pos[zero][1]+pos[five][1])/2]),
+      'vertices':
+      [
+        np.array([pos[zero][0], pos[zero][1]]),
+        np.array([pos[five][0], pos[five][1]]),
+        np.array([pos[three][0], pos[three][1]]),
+        np.array([pos[two][0], pos[two][1]])
+      ],
+      'volume': 1,
+      'adjacency':[[zero, five], [five, three], [three, two], [two, zero]]
+      })
+        
+    # Top Triangle
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-1 - (N*3)-1, 'vertices': [four, three]},
+        {'adjacent_cell': (n*3)-2, 'vertices': [three, five]},
+        {'adjacent_cell': (n*3), 'vertices': [five, four]},
+      ],
+      'original': np.array([
+          (pos[three][0]+pos[four][0]+pos[five][0])/3,
+          (pos[three][1]+pos[four][1]+pos[five][1])/3
+          ]),
+      'vertices':
+      [
+        np.array([pos[four][0], pos[four][1]]),
+        np.array([pos[three][0], pos[three][1]]),
+        np.array([pos[five][0], pos[five][1]])
+      ],
+      'volume': np.sqrt(3)/4,
+      'adjacency':[[four, five], [five, three], [three, four]]
+      })
 
 def odd_cell(G, m, n, pos, shapes, N):
     n += 1
@@ -47,16 +107,75 @@ def odd_cell(G, m, n, pos, shapes, N):
     pos[five] = (0.5+xscale, (2*n)+(yscale))
     G.add_edges_from(edge_list)
     
-    shapes[(n*3)-3] = [(one, two), (two, zero), (zero, one)]
-    shapes[(n*3)-2] = [(zero, five), (five, three), (three, two), (two, zero)]
-    shapes[(n*3)-1] = [(four, five), (five, three), (three, four)]
+    # Bottom Triangle
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-3 + (N*3)-1, 'vertices': [one, zero]},
+        {'adjacent_cell': (n*3)-2, 'vertices': [zero, two]},
+        {'adjacent_cell': (n*3)-4, 'vertices': [two, one]},
+       
+      ],
+      'original': np.array([
+          (pos[zero][0]+pos[one][0]+pos[two][0])/3,
+          (pos[zero][1]+pos[one][1]+pos[two][1])/3
+          ]),
+      'vertices':
+      [
+        np.array([pos[one][0], pos[one][1]]),
+        np.array([pos[zero][0], pos[zero][1]]),
+        np.array([pos[two][0], pos[two][1]])
+      ],
+      'volume': np.sqrt(3)/4,
+      'adjacency':[[one, zero], [zero, two], [two, one]]
+      })
+        
+    # Square
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-2 - (N*3), 'vertices': [zero, five]},
+        {'adjacent_cell': (n*3)-1, 'vertices': [five, three]},
+        {'adjacent_cell': (n*3)-2 + (N*3), 'vertices': [three, two]},
+        {'adjacent_cell': (n*3)-3, 'vertices': [two, zero]},
+      ],
+      'original': np.array([(pos[zero][0]+pos[two][0])/2, (pos[zero][1]+pos[five][1])/2]),
+      'vertices':
+      [
+        np.array([pos[zero][0], pos[zero][1]]),
+        np.array([pos[five][0], pos[five][1]]),
+        np.array([pos[three][0], pos[three][1]]),
+        np.array([pos[two][0], pos[two][1]])
+      ],
+      'volume': 1,
+      'adjacency':[[zero, five], [five, three], [three, two], [two, zero]]
+      })
+        
+    # Top Triangle
+    shapes.append({'faces':
+      [
+        {'adjacent_cell': (n*3)-1 - (N*3)-1, 'vertices': [four, three]},
+        {'adjacent_cell': (n*3)-2, 'vertices': [three, five]},
+        {'adjacent_cell': (n*3), 'vertices': [five, four]},
+      ],
+      'original': np.array([
+          (pos[three][0]+pos[four][0]+pos[five][0])/3,
+          (pos[three][1]+pos[four][1]+pos[five][1])/3
+          ]),
+      'vertices':
+      [
+        np.array([pos[four][0], pos[four][1]]),
+        np.array([pos[three][0], pos[three][1]]),
+        np.array([pos[five][0], pos[five][1]])
+      ],
+      'volume': np.sqrt(3)/4,
+      'adjacency':[[four, five], [five, three], [three, four]]
+      })
     
 G = nx.Graph()
 S = nx.Graph()
 pos = {}
-shapes = {}
-M = 40
-N = 20
+shapes = []
+M = 2
+N = 2
 U = 1
 V = 1
 for m in range(0,M):
@@ -68,7 +187,8 @@ for m in range(0,M):
             odd_cell(G, m, idx, pos, shapes, N)
 # for shape in shapes:
 #     print(f"{shape}: {shapes[shape]}")
-# nx.draw(G, pos=pos, with_labels=True, node_size=300)
-nx.draw(G, pos=pos, with_labels=False, node_size=0)
+nx.draw(G, pos=pos, with_labels=True, node_size=300)
+# nx.draw(G, pos=pos, with_labels=False, node_size=0)
 plt.axis('scaled')
+print(shapes)
 plt.show()
