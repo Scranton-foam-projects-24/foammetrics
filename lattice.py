@@ -4,7 +4,7 @@ import numpy as np
 
 # TODO: Remove duplicate vertices & edges
 
-def even_cell(G, m, n, pos, shapes, N):
+def even_cell(G, m, n, pos, shapes, N, M):
     n += 1
     zero = (4*n)-4+(2*m)
     one = (4*n)-3+(2*m)
@@ -25,9 +25,9 @@ def even_cell(G, m, n, pos, shapes, N):
     pos[five] = (1.0+xscale, (2*n)+(yscale))
     G.add_edges_from(edge_list)
     
-    add_shapes(pos, shapes, n-1)
+    add_shapes(pos, shapes, n-1, N, M)
 
-def odd_cell(G, m, n, pos, shapes, N):
+def odd_cell(G, m, n, pos, shapes, N, M):
     n += 1
     zero = (4*n)-4+(2*m)
     one = (4*n)-3+(2*m)
@@ -48,9 +48,9 @@ def odd_cell(G, m, n, pos, shapes, N):
     pos[five] = (0.5+xscale, (2*n)+(yscale))
     G.add_edges_from(edge_list)
     
-    add_shapes(pos, shapes, n-1)
+    add_shapes(pos, shapes, n-1, N, M)
 
-def add_shapes(pos, shapes, n):
+def add_shapes(pos, shapes, n, N, M):
     # TODO: Only add valid adjacent cells. Negative cells should be removed.
     #       Also remove illegal adjacenies.
     n += 1
@@ -62,12 +62,9 @@ def add_shapes(pos, shapes, n):
     five = (4*n)+1+(2*m)
     
     # Bottom Triangle
-    shapes.append({'faces':
+    bottom = {'faces':
       [
-        {'adjacent_cell': (n*3)-3 + (N*3)-1, 'vertices': [one, zero]},
         {'adjacent_cell': (n*3)-2, 'vertices': [zero, two]},
-        {'adjacent_cell': (n*3)-4, 'vertices': [two, one]},
-       
       ],
       'original': np.array([
           (pos[zero][0]+pos[one][0]+pos[two][0])/3,
@@ -81,14 +78,12 @@ def add_shapes(pos, shapes, n):
       ],
       'volume': np.sqrt(3)/4,
       'adjacency':[[one, zero], [zero, two], [two, one]]
-      })
+      }
         
     # Square
-    shapes.append({'faces':
+    middle = {'faces':
       [
-        {'adjacent_cell': (n*3)-2 - (N*3), 'vertices': [zero, five]},
         {'adjacent_cell': (n*3)-1, 'vertices': [five, three]},
-        {'adjacent_cell': (n*3)-2 + (N*3), 'vertices': [three, two]},
         {'adjacent_cell': (n*3)-3, 'vertices': [two, zero]},
       ],
       'original': np.array([(pos[zero][0]+pos[two][0])/2, (pos[zero][1]+pos[five][1])/2]),
@@ -101,14 +96,12 @@ def add_shapes(pos, shapes, n):
       ],
       'volume': 1,
       'adjacency':[[zero, five], [five, three], [three, two], [two, zero]]
-      })
+      }
         
     # Top Triangle
-    shapes.append({'faces':
-      [
-        {'adjacent_cell': (n*3)-1 - (N*3)-1, 'vertices': [four, three]},
+    top = {'faces':
+      [#                  (2*3)-2
         {'adjacent_cell': (n*3)-2, 'vertices': [three, five]},
-        {'adjacent_cell': (n*3), 'vertices': [five, four]},
       ],
       'original': np.array([
           (pos[three][0]+pos[four][0]+pos[five][0])/3,
@@ -122,25 +115,59 @@ def add_shapes(pos, shapes, n):
       ],
       'volume': np.sqrt(3)/4,
       'adjacency':[[four, five], [five, three], [three, four]]
-      })
+      }
+
+    if (n-1) % N != 0: # Not bottom-most cell
+        if ((n*3)-3) + ((N*3)-1) < N*3*M:
+            bottom['faces'].append(
+                {'adjacent_cell': ((n*3)-3) + ((N*3)-1), 'vertices': [one, zero]}
+            )
+        bottom['faces'].append(
+            {'adjacent_cell': (n*3)-4, 'vertices': [two, one]}    
+        )
+    if (n-1) % N != N-1: # Not top-most cell
+        if -1 < (n*3) + (N*3) < N*3*M:
+            top['faces'].append(
+                {'adjacent_cell': (n*3) + (N*3), 'vertices': [four, three]}    
+            )
+        if (n*3) < N*3*M:
+            top['faces'].append(
+                {'adjacent_cell': (n*3), 'vertices': [five, four]}
+            )
+
+    # if left square exists
+    if (n*3)-2 - (N*3) >= 0:
+        middle['faces'].append(
+            {'adjacent_cell': (n*3)-2 - (N*3), 'vertices': [zero, five]}
+        )
+    
+    # if right square exists
+    if (n*3)-2 - (N*3) <= N*3*M:
+        middle['faces'].append(
+            {'adjacent_cell': (n*3)-2 - (N*3), 'vertices': [three, two]}
+        )
+    
+    shapes.extend([bottom, middle, top])
     
 G = nx.Graph()
 S = nx.Graph()
 pos = {}
 shapes = []
-M = 1
-N = 1
-U = 1
-V = 1
+M = 2
+N = 2
+U = 1 # Unused basis factor
+V = 1 # Unused basis factor
 for m in range(0,M):
     for n in range(0, N):
         idx = (N * m) + n
         if n % 2 == 0:
-            even_cell(G, m, idx, pos, shapes, N)
+            even_cell(G, m, idx, pos, shapes, N, M)
         else:
-            odd_cell(G, m, idx, pos, shapes, N)
+            odd_cell(G, m, idx, pos, shapes, N, M)
 # Show nodes and labels for debugging
-nx.draw(G, pos=pos, with_labels=True, node_size=300)
+nx.draw(G, pos=pos, with_labels=True)
 # nx.draw(G, pos=pos, node_size=0)
+print(shapes[5])
+# print(shapes[1])
 plt.axis('scaled')
 plt.show()
