@@ -4,7 +4,7 @@ import turning_function
 import matplotlib.pyplot as plt
 
 from polygon import Polygon
-import winsound
+# import winsound
 
 class Voronoi_Utils:
     def __init__(self):
@@ -254,4 +254,4 @@ if __name__ == "__main__":
         deviations, 
         label_weighted=weighted
     )
-    winsound.MessageBeep()
+    # winsound.MessageBeep()

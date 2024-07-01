@@ -8,13 +8,20 @@ def even_cell(G, m, n, pos, shapes, N, M):
     n += 1
     zero = (4*n)-4+(2*m)
     one = (4*n)-3+(2*m)
-    two = (4*n)-2+(2*m)
-    three = (4*n)-1+(2*m)
-    four = 4*n+(2*m)
-    five = (4*n)+1+(2*m)
+    five = (4*n)+1+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-2+(2*m)
+    prev_zero = zero - ((4*N)+2)
+    prev_six = (4*n)+2+(2*m) - ((4*N)+2)
+    prev_five = (4*n)+1+(2*m) - ((4*N)+2)
+    two = (4*n)-2+(2*m) if prev_zero < 0 else prev_zero
+    three = (4*n)-1+(2*m) if prev_five < 0 else prev_five
+    four = 4*n+(2*m) if prev_six <= 0 else prev_six
+    print(five)
+    print(f"(even) Graphing:\n {four}\n/ \ \n{three} {five}\n| |\n{two} {zero}\n\ /\n {one}")
+        
     edge_list = [(zero,one), (one,two), (zero,two),
                  (two,three), (zero,five), (three,five),
                  (three,four), (five,four)]
+    
     xscale = m
     yscale = -1 * (N*2)*m
     pos[zero] = (1.0+xscale, ((2*n)-1)+(yscale))
@@ -23,21 +30,29 @@ def even_cell(G, m, n, pos, shapes, N, M):
     pos[three] = (0.0+xscale, (2*n)+(yscale))
     pos[four] = (0.5+xscale, ((2*n)+1)+(yscale))
     pos[five] = (1.0+xscale, (2*n)+(yscale))
+    print(pos[five])
     G.add_edges_from(edge_list)
     
     add_shapes(pos, shapes, n-1, N, M)
 
 def odd_cell(G, m, n, pos, shapes, N, M):
     n += 1
-    zero = (4*n)-4+(2*m)
-    one = (4*n)-3+(2*m)
-    two = (4*n)-2+(2*m)
-    three = (4*n)-1+(2*m)
-    four = 4*n+(2*m)
-    five = (4*n)+1+(2*m)
+    one = (4*n)-3+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-6+(2*m)
+    three = (4*n)-1+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-4+(2*m)
+    four = 4*n+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-3+(2*m)
+    prev_two = (4*n)-2+(2*m) - ((4*N)+2)
+    prev_three = (4*n)-1+(2*m) - ((4*N)+2)
+    prev_zero = (4*n)-4+(2*m) - ((4*N)+2)
+    five = (4*n)+1+(2*m) if prev_three < 0 else prev_three
+    zero = (4*n)-4+(2*m) if prev_two < 0 else prev_two
+    two = (4*n)-2+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-5+(2*m)
+    print(two)
+    print(f"(odd) Graphing:\n {four}\n/ \ \n{five} {three}\n| |\n{zero} {two}\n\ /\n {one}")
+    
     edge_list = [(zero,one), (one,two), (zero,two),
                  (two,three), (zero,five), (three,five),
                  (three,four), (five,four)]
+    
     xscale = m
     yscale = -1 * (N*2)*m
     pos[zero] = (0.5+xscale, ((2*n)-1)+(yscale))
@@ -46,20 +61,23 @@ def odd_cell(G, m, n, pos, shapes, N, M):
     pos[three] = (1.5+xscale, (2*n)+(yscale))
     pos[four] = (1.0+xscale, ((2*n)+1)+(yscale))
     pos[five] = (0.5+xscale, (2*n)+(yscale))
+    print(pos[one])
     G.add_edges_from(edge_list)
     
     add_shapes(pos, shapes, n-1, N, M)
 
 def add_shapes(pos, shapes, n, N, M):
-    # TODO: Only add valid adjacent cells. Negative cells should be removed.
-    #       Also remove illegal adjacenies.
     n += 1
-    zero = (4*n)-4+(2*m)
-    one = (4*n)-3+(2*m)
-    two = (4*n)-2+(2*m)
-    three = (4*n)-1+(2*m)
-    four = 4*n+(2*m)
-    five = (4*n)+1+(2*m)
+    prev_two = (4*n)-2+(2*m) - ((4*N)+2)
+    prev_three = (4*n)-1+(2*m) - ((4*N)+2)
+    prev_five = (4*n)+1+(2*m) - ((4*N)+2)
+    prev_six = (4*n)+2+(2*m) - ((4*N)+2)
+    zero = (4*n)-4+(2*m) if prev_two < 0 else prev_two
+    one = (4*n)-3+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-6+(2*m)
+    two = (4*n)-2+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-5+(2*m)
+    three = (4*n)-1+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-4+(2*m)
+    four = 4*n+(2*m) if (4*n)+1+(2*m) < ((4*N)+2) else (4*n)-3+(2*m)
+    five = (4*n)+1+(2*m) if prev_three < 0 else prev_three
     
     # Bottom Triangle
     bottom = {'faces':
@@ -150,11 +168,10 @@ def add_shapes(pos, shapes, n, N, M):
     shapes.extend([bottom, middle, top])
     
 G = nx.Graph()
-S = nx.Graph()
 pos = {}
 shapes = []
 M = 2
-N = 2
+N = 3
 U = 1 # Unused basis factor
 V = 1 # Unused basis factor
 for m in range(0,M):
@@ -167,7 +184,7 @@ for m in range(0,M):
 # Show nodes and labels for debugging
 nx.draw(G, pos=pos, with_labels=True)
 # nx.draw(G, pos=pos, node_size=0)
-print(shapes[5])
+# print(shapes[5])
 # print(shapes[1])
 plt.axis('scaled')
 plt.show()
