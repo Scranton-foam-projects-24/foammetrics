@@ -12,9 +12,6 @@ def index_cells(shapes, pos, N, M):
     return cells
 
 def index_3_gon(vertices, idx, N, M):
-    # for node in G.adjacency():
-    #     print(list(node[1].keys()))
-    
     # TODO: Take a better look at the edge triangles
     #       - Find patterns between idxs and nodes
     #       - Write code to filter out edge triangles
@@ -22,21 +19,31 @@ def index_3_gon(vertices, idx, N, M):
     #       - Specify that the edge triangles have only 1 neighbor
     
     faces = []
-    if vertices[2] - vertices[0] == N:
-        print(f"{vertices[0]}-{vertices[2]} is flat")
-        print(f"{vertices[0]}-{vertices[1]} is slanted")
-        print(f"{vertices[1]}-{vertices[2]} is slanted")
+    if vertices[2] % N == 1 and vertices[1] % N == 1:
+        # print(f"{vertices[1]}-{vertices[2]} is flat side of edge triangle {idx}")
+        faces.append(
+            {'adjacent_cell': idx+1, 'vertices': [vertices[1], vertices[2]]} 
+        )
+    elif vertices[2] % N == N-2 and vertices[0] % N == N-2:
+        # print(f"{vertices[0]}-{vertices[2]} is flat side of edge triangle {idx}")
+        faces.append(
+            {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[2]]} 
+        )
+    elif vertices[2] - vertices[0] == N:
+        # print(f"{vertices[0]}-{vertices[2]} is flat")
+        # print(f"{vertices[0]}-{vertices[1]} is slanted")
+        # print(f"{vertices[1]}-{vertices[2]} is slanted")
         if vertices[2] % 2 == 0:
             faces.append(
                 {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[2]]} 
             )
             if idx-N > 0:
-                print(f"Triangle {idx} shares an edge with {idx-N}")
+                # print(f"Triangle {idx} shares an edge with {idx-N}")
                 faces.append(
                     {'adjacent_cell': idx-N, 'vertices': [vertices[0], vertices[1]]},    
                 )
-            if idx+1 < N*M and idx%N != 0:
-                print(f"Triangle {idx} shares an edge with {idx+1}")
+            if idx+1 < N*M:
+                # print(f"Triangle {idx} shares an edge with {idx+1}")
                 faces.append(
                     {'adjacent_cell': idx+1, 'vertices': [vertices[1], vertices[2]]}
                 )
@@ -45,30 +52,30 @@ def index_3_gon(vertices, idx, N, M):
                 {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]} 
             )
             if idx-1 > 0:
-                print(f"Triangle {idx} shares an edge with {idx-1}")
+                # print(f"Triangle {idx} shares an edge with {idx-1}")
                 faces.append(
                     {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[1]]},    
                 )
-            if idx+N < N*M:
-                print(f"Triangle {idx} shares an edge with {idx+N}")
+            if idx+N < N*M-N:
+                # print(f"Triangle {idx} shares an edge with {idx+N}")
                 faces.append(
                     {'adjacent_cell': idx+N, 'vertices': [vertices[1], vertices[2]]}
                 )
     elif vertices[2] - vertices[1] == N:
-        print(f"{vertices[1]}-{vertices[2]} is flat")
-        print(f"{vertices[0]}-{vertices[1]} is slanted")
-        print(f"{vertices[0]}-{vertices[2]} is slanted")
+        # print(f"{vertices[1]}-{vertices[2]} is flat")
+        # print(f"{vertices[0]}-{vertices[1]} is slanted")
+        # print(f"{vertices[0]}-{vertices[2]} is slanted")
         if vertices[1] % 2 == 0:
             faces.append(
                 {'adjacent_cell': idx-1, 'vertices': [vertices[1], vertices[2]]} 
             )
             if idx-1 > 0:
-                print(f"Triangle {idx} shares an edge with {idx-1}")
+                # print(f"Triangle {idx} shares an edge with {idx-1}")
                 faces.append(
                     {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[1]]},    
                 )
             if idx-N > 0:
-                print(f"Triangle {idx} shares an edge with {idx-N}")
+                # print(f"Triangle {idx} shares an edge with {idx-N}")
                 faces.append(
                     {'adjacent_cell': idx+N, 'vertices': [vertices[1], vertices[2]]}
                 )
@@ -76,31 +83,31 @@ def index_3_gon(vertices, idx, N, M):
             faces.append(
                 {'adjacent_cell': idx+1, 'vertices': [vertices[1], vertices[2]]} 
             )
-            if idx-1 > 0 and (idx-1)%N > 0:
-                print(f"Triangle {idx} shares an edge with {idx-1}")
+            if idx-1 > 0:
+                # print(f"Triangle {idx} shares an edge with {idx-1}")
                 faces.append(
                     {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[1]]},    
                 )
-            if idx-N-2 > 0 and idx%N != 1:
-                print(f"Triangle {idx} shares an edge with {idx-N-2}")
+            if idx-N-2 > 0:
+                # print(f"Triangle {idx} shares an edge with {idx-N-2}")
                 faces.append(
                     {'adjacent_cell': idx+N, 'vertices': [vertices[1], vertices[2]]}
                 )
     elif vertices[1] - vertices[0] == N:
-        print(f"{vertices[0]}-{vertices[1]} is flat")
-        print(f"{vertices[0]}-{vertices[2]} is slanted")
-        print(f"{vertices[1]}-{vertices[2]} is slanted")
+        # print(f"{vertices[0]}-{vertices[1]} is flat")
+        # print(f"{vertices[0]}-{vertices[2]} is slanted")
+        # print(f"{vertices[1]}-{vertices[2]} is slanted")
         if vertices[1] % 2 == 0:
             faces.append(
                 {'adjacent_cell': idx-1, 'vertices': [vertices[1], vertices[0]]} 
             )
             if idx+1 > 0:
-                print(f"Triangle {idx} shares an edge with {idx+1}")
+                # print(f"Triangle {idx} shares an edge with {idx+1}")
                 faces.append(
                     {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]},    
                 )
-            if idx+N+2 > 0:
-                print(f"Triangle {idx} shares an edge with {idx+N+2}")
+            if 0 < idx+N+2 < N*M:
+                # print(f"Triangle {idx} shares an edge with {idx+N+2}")
                 faces.append(
                     {'adjacent_cell': idx+N+2, 'vertices': [vertices[1], vertices[2]]}
                 )
@@ -108,16 +115,16 @@ def index_3_gon(vertices, idx, N, M):
             faces.append(
                 {'adjacent_cell': idx+1, 'vertices': [vertices[1], vertices[0]]} 
             )
-            if idx-1 > 0 and (idx-1)%N > 0:
-                print(f"Triangle {idx} shares an edge with {idx-1}")
-                # faces.append(
-                #     {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[2]]},    
-                # )
-            if idx-N > 0 and idx%N != 1:
-                print(f"Triangle {idx} shares an edge with {idx-N}")
-                # faces.append(
-                #     {'adjacent_cell': idx+N, 'vertices': [vertices[1], vertices[2]]}
-                # )
+            if idx-1 > 0:
+                # print(f"Triangle {idx} shares an edge with {idx-1}")
+                faces.append(
+                    {'adjacent_cell': idx-1, 'vertices': [vertices[0], vertices[2]]},    
+                )
+            if idx-N > 0:
+                # print(f"Triangle {idx} shares an edge with {idx-N}")
+                faces.append(
+                    {'adjacent_cell': idx+N, 'vertices': [vertices[1], vertices[2]]}
+                )
     
     # TODO: Determine which two points are N away from each other
     #       Consider the edge between those two points as the flat side
@@ -127,15 +134,63 @@ def index_3_gon(vertices, idx, N, M):
     #               - Even: has bottom neighbor
     #               - Odd: has top neighbor
     #       - Append faces accordingly
-    
-    print(faces)
-    return vertices
+    # print(pos[vertices[0]])
+    cell = {
+        'faces': faces,
+        'original': np.array([
+            (pos[vertices[0]][0]+pos[vertices[1]][0]+pos[vertices[2]][0])/3,
+            (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
+        ]),
+        'vertices': vertices,
+        'volume': np.sqrt(3)/4,
+        'adjacency': [
+            [vertices[0], vertices[1]],
+            [vertices[0], vertices[2]],
+            [vertices[1], vertices[2]]
+        ]
+    }
+    # print(cell)
+    return cell
 
 def index_4_gon(vertices, idx, N, M):
-    print(f"{idx} is a square")
+    # print(f"{idx} is a square")
     # Squares always have top and bottom neighbors
     # Simple bounds check to determine existence of left/right neighbors
-    return vertices
+    # print(vertices)
+    faces = [
+        {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]},
+        {'adjacent_cell': idx-1, 'vertices': [vertices[1], vertices[3]]}
+    ]
+    if idx-N > 0:
+        faces.append(
+            {'adjacent_cell': idx-N, 'vertices': [vertices[0], vertices[1]]}
+        )
+    if idx+N+1 < N*M-N:
+        faces.append(
+            {'adjacent_cell': idx+N+1, 'vertices': [vertices[2], vertices[3]]}
+        )
+    # print(faces)
+    # print(pos[vertices[0]])
+    # print(pos[vertices[1]])
+    # print(pos[vertices[2]])
+    # print(pos[vertices[3]])
+    cell = {
+        'faces': faces,
+        'original': np.array([
+            (pos[vertices[0]][0]+pos[vertices[2]][0])/2,
+            (pos[vertices[0]][1]+pos[vertices[1]][1])/2
+        ]),
+        'vertices': vertices,
+        'volume': np.sqrt(3)/4,
+        'adjacency': [
+            [vertices[0], vertices[1]],
+            [vertices[1], vertices[3]],
+            [vertices[3], vertices[2]],
+            [vertices[2], vertices[0]]
+        ]
+    }
+    # print(cell)
+    return cell
 
 G = nx.Graph()
 pos = {}
@@ -184,14 +239,17 @@ G.remove_node(M*N-N)
 for i, poly in enumerate(polys):
     shapes[i] = poly
 
-print(polys)
+# print(polys)
 
+# TODO: Fix index_cells() for cases where N%4 != 0
+#       - Top triangles are not treated as edge triangles in this case
 cells = index_cells(shapes, pos, N, M)
 
-print(cells)
+# for cell in cells:
+#     print(cell, cells[cell])
 
 # Show nodes and labels for debugging
-nx.draw(G, pos=pos, with_labels=True)
-# nx.draw(G, pos=pos, node_size=0)
+# nx.draw(G, pos=pos, with_labels=True)
+nx.draw(G, pos=pos, node_size=0)
 plt.axis('scaled')
 plt.show()
