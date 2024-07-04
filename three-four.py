@@ -161,16 +161,17 @@ def index_4_gon(vertices, idx, N, M):
         {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]},
         {'adjacent_cell': idx-1, 'vertices': [vertices[1], vertices[3]]}
     ]
-    if idx-N > 0:
+    print(f"idx-int((5.928571429*(N/4))-2.678571429) >>>>> {idx-int((5.928571429*(N/4))-2.678571429)}, idx={idx}")
+    if idx-int((5.928571429*(N/4))-2.678571429) > 0:
         faces.append(
-            {'adjacent_cell': idx-N, 'vertices': [vertices[0], vertices[1]]}
+            {'adjacent_cell': idx-int((5.928571429*(N/4))-2.678571429), 'vertices': [vertices[0], vertices[1]]}
         )
     # print(f"idx >>>>> {idx}")
     # print(f"N*M-N >>>>> {N*M-N}")
-    # print(f"((5.9*(N/4))-1.5) >>>>> {((5.9*(N/4))-1.5)}")
-    if int((5.9*(N/4))-1.5) < N*M-N:
+    # print(f"(int((5.928571429*(N/4))-2.678571429)+idx >>>>> {int((5.928571429*(N/4))-2.678571429)+idx}, idx={idx}")
+    if int((5.928571429*(N/4))-2.678571429)+idx < N*M-N:
         faces.append(
-            {'adjacent_cell': int((5.928571429*(N/4))-1.678571429), 'vertices': [vertices[2], vertices[3]]}
+            {'adjacent_cell': int((5.928571429*(N/4))-2.678571429)+idx, 'vertices': [vertices[2], vertices[3]]}
         )
     # print(faces)
     # print(pos[vertices[0]])
