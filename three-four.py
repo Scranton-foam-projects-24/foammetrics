@@ -165,9 +165,12 @@ def index_4_gon(vertices, idx, N, M):
         faces.append(
             {'adjacent_cell': idx-N, 'vertices': [vertices[0], vertices[1]]}
         )
-    if idx+N+1 < N*M-N:
+    # print(f"idx >>>>> {idx}")
+    # print(f"N*M-N >>>>> {N*M-N}")
+    # print(f"((5.9*(N/4))-1.5) >>>>> {((5.9*(N/4))-1.5)}")
+    if int((5.9*(N/4))-1.5) < N*M-N:
         faces.append(
-            {'adjacent_cell': idx+N+1, 'vertices': [vertices[2], vertices[3]]}
+            {'adjacent_cell': int((5.928571429*(N/4))-1.678571429), 'vertices': [vertices[2], vertices[3]]}
         )
     # print(faces)
     # print(pos[vertices[0]])
@@ -197,7 +200,7 @@ pos = {}
 polys = []
 shapes = {}
 M = 5
-N = int(4 * 2) # Change only the second number
+N = int(4 * 3.5) # Change only the second number
 
 for m in range(0,M):
     pos[N*m] = (m+0.5,0)
@@ -233,7 +236,7 @@ for m in range(0,M):
 if M*N % 4 == 0:
     G.remove_node(M*N-1)
 else:
-    G.remove_node(M)
+    G.remove_node(N-1)
 G.remove_node(M*N-N)
 
 for i, poly in enumerate(polys):
@@ -245,8 +248,8 @@ for i, poly in enumerate(polys):
 #       - Top triangles are not treated as edge triangles in this case
 cells = index_cells(shapes, pos, N, M)
 
-# for cell in cells:
-#     print(cell, cells[cell])
+for cell in cells:
+    print(cell, cells[cell]['faces'])
 
 # Show nodes and labels for debugging
 # nx.draw(G, pos=pos, with_labels=True)
