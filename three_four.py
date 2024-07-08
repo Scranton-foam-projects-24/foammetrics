@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def index_cells(shapes, pos, N, M):
-    cells = {}
+    cells = []
     for shape in shapes:
         if len(shapes[shape]) == 3:
-            cells[shape] = index_3_gon(shapes[shape], shape, N, M)
+            cells.append(index_3_gon(shapes[shape], shape, N, M, pos))
         else:
-            cells[shape] = index_4_gon(shapes[shape], shape, N, M)
+            cells.append(index_4_gon(shapes[shape], shape, N, M, pos))
     return cells
 
-def index_3_gon(vertices, idx, N, M):
+def index_3_gon(vertices, idx, N, M, pos):
     faces = []
     # If the polygon is a triangle on the bottom of the lattice
     if vertices[2] % N == 1 and vertices[1] % N == 1:
@@ -166,7 +166,7 @@ def index_3_gon(vertices, idx, N, M):
     }
     return cell
 
-def index_4_gon(vertices, idx, N, M):
+def index_4_gon(vertices, idx, N, M, pos):
     # Squares will always have top and bottom neighbors
     faces = [
         {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]},
@@ -202,35 +202,35 @@ def index_4_gon(vertices, idx, N, M):
     }
     return cell
 
-if __name__ == "__main__":
+def lattice_cells(n, m):
     G = nx.Graph()
     pos = {}
     polys = []
     shapes = {}
-    M = 5
-    N = int(4 * 2.5) # Change only the second number
+    M = m
+    N = int(4 * n) # Change only the second number
     
-    for m in range(0,M):
+    for col in range(0,M):
         # Initialize column with a vertex
-        pos[N*m] = np.array([m+0.5,0])
+        pos[N*col] = np.array([col+0.5,0])
         
         # Construct a column of vertices which are all connected according to
         # the 3^2, 4^2 Archimedian Lattice
-        for n in range(1, N):
+        for row in range(1, N):
             # In this context, rows and columns are in reference to rows and
             # columns of tiles, not vertices unless otherwise specified
             
             # Plot vertex above prev vertex and connect it to previous vertex
-            idx = (N * m) + n
+            idx = (N * col) + row
             G.add_edge(idx-1, idx)
             
             # If the vertex is part of a tile on an even row
-            if (n % 4 == 3 or n % 4 == 0) and 1 < n < N:
+            if (row % 4 == 3 or row % 4 == 0) and 1 < row < N:
                 # If plotting a polygon on the second or later column
-                if idx > N and n < N-1:
+                if idx > N and row < N-1:
                     # If the vertex is part of both a square and a downward
                     # facing triangle on an even row
-                    if n % 4 == 3:
+                    if row % 4 == 3:
                         polys.append(sorted([idx, idx-1, idx-N]))
                         polys.append(sorted([idx, idx-N, idx-N+1, idx+1]))
                     # Otherwise, handle the vertex of the top right corner of
@@ -241,23 +241,23 @@ if __name__ == "__main__":
                     # Connect current vertex to vertex on same row in prev col
                     G.add_edge(idx, idx-N)
                 # Set position for vertices on even rows
-                pos[idx] = np.array([m+0.5,n])
+                pos[idx] = np.array([col+0.5,row])
             else:
                 # Set position for vertices on odd rows
-                pos[idx] = np.array([m,n])
+                pos[idx] = np.array([col,row])
             
             # If the vertex is the bottom left corner of a square on an odd row
-            if n % 4 == 1 and idx > N:
-                if n != N - 1:
+            if row % 4 == 1 and idx > N:
+                if row != N - 1:
                     polys.append(sorted([idx, idx-N, idx-N-1]))
                     polys.append(sorted([idx, idx-N, idx-N+1, idx+1]))
                 G.add_edge(idx, idx-N-1)
                 # If the vertex is not in the first column
-                if n < N-1:
+                if row < N-1:
                     G.add_edge(idx, idx-N)
             
             # If the vertex is the top left corner of a square on an odd row
-            if n % 4 == 2 and idx > N:
+            if row % 4 == 2 and idx > N:
                 polys.append(sorted([idx, idx-N, idx-N+1]))
                 G.add_edge(idx, idx-N)
                 G.add_edge(idx, idx-N+1)
@@ -281,13 +281,17 @@ if __name__ == "__main__":
     shapes.pop(M*N-N, None)
     
     # Convert dictionary of shapes to list of cells in same format as pyvoro
-    cells = index_cells(shapes, pos, N, M)
+    # cells = index_cells(shapes, pos, N, M)
+    return index_cells(shapes, pos, N, M)
     
-    for cell in cells:
-        print(cell, cells[cell])
+    # for cell in cells:
+    #     print(cell, cells[cell])
     
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
-    nx.draw(G, pos=pos, node_size=0)
-    plt.axis('scaled')
-    plt.show()
+    # nx.draw(G, pos=pos, node_size=0)
+    # plt.axis('scaled')
+    # plt.show()
+
+if __name__ == "__main__":
+    print(lattice_cells(2.5, 5))
