@@ -19,7 +19,7 @@ def index_3_gon(vertices, idx, N, M):
             {'adjacent_cell': idx+1,
              'vertices': [vertices[1], vertices[2]]} 
         )
-    # If the polygon is a triangle on the top of the lattice where N%4 == 0
+    # If the polygon is a triangle on the top of the lattice with even num rows
     elif (
          vertices[2] % N == N-2 and 
          vertices[0] % N == N-2 and 
@@ -29,6 +29,7 @@ def index_3_gon(vertices, idx, N, M):
             {'adjacent_cell': idx-1,
              'vertices': [vertices[0], vertices[2]]} 
         )
+    # If the polygon is a triangle on the top of the lattice with odd num rows
     elif (
         vertices[1] % N == N-2 and 
         vertices[0] % N == N-2 and 
@@ -155,7 +156,7 @@ def index_3_gon(vertices, idx, N, M):
             (pos[vertices[0]][0]+pos[vertices[1]][0]+pos[vertices[2]][0])/3,
             (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
         ]),
-        'vertices': vertices,
+        'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
         'volume': np.sqrt(3)/4,
         'adjacency': [
             [vertices[0], vertices[1]],
@@ -190,7 +191,7 @@ def index_4_gon(vertices, idx, N, M):
             (pos[vertices[0]][0]+pos[vertices[2]][0])/2,
             (pos[vertices[0]][1]+pos[vertices[1]][1])/2
         ]),
-        'vertices': vertices,
+        'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]], pos[vertices[3]]],
         'volume': np.sqrt(3)/4,
         'adjacency': [
             [vertices[0], vertices[1]],
@@ -211,7 +212,7 @@ if __name__ == "__main__":
     
     for m in range(0,M):
         # Initialize column with a vertex
-        pos[N*m] = (m+0.5,0)
+        pos[N*m] = np.array([m+0.5,0])
         
         # Construct a column of vertices which are all connected according to
         # the 3^2, 4^2 Archimedian Lattice
@@ -240,10 +241,10 @@ if __name__ == "__main__":
                     # Connect current vertex to vertex on same row in prev col
                     G.add_edge(idx, idx-N)
                 # Set position for vertices on even rows
-                pos[idx] = (m+0.5,n)
+                pos[idx] = np.array([m+0.5,n])
             else:
                 # Set position for vertices on odd rows
-                pos[idx] = (m,n)
+                pos[idx] = np.array([m,n])
             
             # If the vertex is the bottom left corner of a square on an odd row
             if n % 4 == 1 and idx > N:
@@ -282,8 +283,8 @@ if __name__ == "__main__":
     # Convert dictionary of shapes to list of cells in same format as pyvoro
     cells = index_cells(shapes, pos, N, M)
     
-    # for cell in cells:
-    #     print(cell, cells[cell]['faces'])
+    for cell in cells:
+        print(cell, cells[cell])
     
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
