@@ -1,7 +1,7 @@
 # import pyvoro
 import numpy as np
 import matplotlib.pyplot as plt
-import three_four
+import lattice_3_3_4_4 as lat
 
 def swap_last(polygon):
     temp = polygon.pop() # take off old last
@@ -12,18 +12,8 @@ def swap_last(polygon):
 pts = 10
 N = 3
 M = 8
-# points = np.random.rand(pts, 2)
-# colors = np.random.rand(pts, 3) 
-# color_map = {tuple(coords):color for coords, color in zip(points, colors)}
-# cells = pyvoro.compute_2d_voronoi(
-#     points, # point positions, 2D vectors this time.
-#     [[0.0, 1.0], [0.0, 1.0]], # box size
-#     2.0, # block size
-#     periodic = [True, True]
-# )
 
-# Work on scaling the box size to 1x1 grid
-cells = three_four.lattice_cells(N, M)
+cells = lat.lattice_cells(N, M)
 
 points = []
 for i, cell in enumerate(cells):    
@@ -33,9 +23,6 @@ for i, cell in enumerate(cells):
     points.append(cell['original'].tolist())
     plt.fill(*zip(*polygon),  color = 'black', alpha=0.1)
 
-# The plots are weird because the squares go:
-    # bottom left, top left, bottom right, top right
-    # instead of (counter)clockwise motion
 points = np.array(points)
 plt.plot(points[:,0], points[:,1], 'ko')
 plt.xlim(-0.1, 1.1)
