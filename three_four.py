@@ -212,7 +212,7 @@ def lattice_cells(n, m):
     
     for col in range(0,M):
         # Initialize column with a vertex
-        pos[N*col] = np.array([col+0.5,0])
+        pos[N*col] = np.array([(col+0.5)/M,0/N])
         
         # Construct a column of vertices which are all connected according to
         # the 3^2, 4^2 Archimedian Lattice
@@ -241,10 +241,10 @@ def lattice_cells(n, m):
                     # Connect current vertex to vertex on same row in prev col
                     G.add_edge(idx, idx-N)
                 # Set position for vertices on even rows
-                pos[idx] = np.array([col+0.5,row])
+                pos[idx] = np.array([(col+0.5)/M,row/N])
             else:
                 # Set position for vertices on odd rows
-                pos[idx] = np.array([col,row])
+                pos[idx] = np.array([col/M,row/N])
             
             # If the vertex is the bottom left corner of a square on an odd row
             if row % 4 == 1 and idx > N:
