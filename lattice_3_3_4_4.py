@@ -208,7 +208,7 @@ def lattice_cells(n, m):
     polys = []
     shapes = {}
     M = m
-    N = int(4 * n) # Change only the second number
+    N = int(4 * n)
     
     for col in range(0,M):
         # Initialize column with a vertex
