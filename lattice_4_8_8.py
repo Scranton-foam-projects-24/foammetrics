@@ -49,22 +49,55 @@ def lattice_cells(n, m):
     pos = {}
     polys = []
     shapes = {}
-    M = m
-    N = int(6 * n)
+    M = m * 4
+    N = int(4 * n)
     
     for col in range(0, M):
         pos[N*col] = np.array([col, 0]) # TODO
+        if col > 0 and col % 4 == 2:
+            G.add_edge(N*col, N*col-N)
         
-        for row in range(1, N):
+        for row in range(0, N):
             idx = (N * col) + row
-            G.add_edge(idx-1, idx)
+            if 1 < row % 4 < 3 and idx-1 in G.nodes:
+                G.add_edge(idx, idx-1)
+            
             pos[idx] = np.array([col, row])
+
+            if col < M-1:
+                if row % 4 == 0 and col % 4 == 2:
+                    G.add_edge(idx, idx+N+1)
+                if row % 4 == 1 and col % 4 == 0:
+                    G.add_edge(idx, idx+N-1)
+                if row % 4 == 2 and col % 4 == 0:
+                    G.add_edge(idx, idx+N+1)
+                if row % 4 == 3 and col % 4 == 2:
+                    G.add_edge(idx, idx+N-1)
+            
+            if 0 < row % 4 < 3 and idx in G.nodes:
+                if 0 < col % 4 < 3:
+                    G.remove_node(idx)
+                elif col % 4 == 3 and idx+N < N*M:
+                    G.add_edge(idx, idx+N)
+            
+            if col % 4 == 2 and (row % 4 == 0 or row % 4 == 3):
+                G.add_edge(idx, idx-N)
+                if (idx + 1) % N > 0 :
+                    G.add_edge(idx, idx+1)
+                    
+            if col % 4 == 1 and (row % 4 == 0 or row % 4 == 3):
+                if (idx + 1) % N > 0:
+                    G.add_edge(idx, idx+1)
+            
+            # if col % 4 == 1 and (row % 4 == 0 or row % 4 == 3):
+            #     G.add_edge(idx, idx)
+                
             
     # Show nodes and labels for debugging when necessary
-    nx.draw(G, pos=pos, with_labels=True)
-    # nx.draw(G, pos=pos, node_size=0)
+    # nx.draw(G, pos=pos, with_labels=True)
+    nx.draw(G, pos=pos, node_size=0)
     plt.axis('scaled')
     plt.show()
 
 if __name__ == "__main__":
-    print(lattice_cells(1, 5))
+    lattice_cells(8, 8)
