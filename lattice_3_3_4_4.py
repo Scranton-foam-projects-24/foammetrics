@@ -1,6 +1,6 @@
 import networkx as nx
-import matplotlib.pyplot as plt
 import numpy as np
+# import matplotlib.pyplot as plt
 
 def index_cells(shapes, pos, N, M):
     cells = []
@@ -14,7 +14,7 @@ def index_cells(shapes, pos, N, M):
 def index_3_gon(vertices, idx, N, M, pos):
     faces = []
     # If the polygon is a triangle on the bottom of the lattice
-    if vertices[2] % N == 1 and vertices[1] % N == 1:
+    if vertices[0] % N == 1 and vertices[1] % N == 1:
         faces.append(
             {'adjacent_cell': idx+1,
              'vertices': [vertices[1], vertices[2]]} 
@@ -22,12 +22,12 @@ def index_3_gon(vertices, idx, N, M, pos):
     # If the polygon is a triangle on the top of the lattice with even num rows
     elif (
          vertices[2] % N == N-2 and 
-         vertices[0] % N == N-2 and 
+         vertices[1] % N == N-2 and 
          float.is_integer((N/4) % 2)   
     ):
         faces.append(
             {'adjacent_cell': idx-1,
-             'vertices': [vertices[0], vertices[2]]} 
+             'vertices': [vertices[1], vertices[2]]} 
         )
     # If the polygon is a triangle on the top of the lattice with odd num rows
     elif (
@@ -39,46 +39,46 @@ def index_3_gon(vertices, idx, N, M, pos):
             {'adjacent_cell': idx-1,
              'vertices': [vertices[0], vertices[1]]} 
         )
-    # If the flat edge of the triangle is formed by vertices[0] and vertices[2]
-    elif vertices[2] - vertices[0] == N:
+    # If the flat edge of the triangle is formed by vertices[2] and vertices[1]
+    elif vertices[2] - vertices[1] == N:
         # Tip of triangle is odd number and exists above flat edge
-        if vertices[2] % 2 == 0:
+        if float.is_integer(pos[vertices[0]][0]):
             faces.append(
                 {'adjacent_cell': idx-1,
-                 'vertices': [vertices[0], vertices[2]]} 
+                 'vertices': [vertices[1], vertices[2]]} 
             )
             # If the triangle to its left (previous col) is on the lattice
-            if idx-N > 0:
+            if idx-N-1 > 0:
                 faces.append(
-                    {'adjacent_cell': idx-N,
+                    {'adjacent_cell': idx-N-1,
                      'vertices': [vertices[0], vertices[1]]},    
                 )
             # If the triangle to its right (proceeding poly) is on the lattice
             if idx+1 < N*M:
                 faces.append(
                     {'adjacent_cell': idx+1,
-                     'vertices': [vertices[1], vertices[2]]}
+                     'vertices': [vertices[0], vertices[2]]}
                 )
         # Tip of triangle is even number and exists below flat edge
         else:
             faces.append(
                 {'adjacent_cell': idx+1,
-                 'vertices': [vertices[0], vertices[2]]} 
+                 'vertices': [vertices[0], vertices[1]]} 
             )
             # If the triangle to its left (previous poly) is on the lattice
             if idx-1 > 0:
                 faces.append(
                     {'adjacent_cell': idx-1,
-                     'vertices': [vertices[0], vertices[1]]},    
+                     'vertices': [vertices[1], vertices[2]]},    
                 )
             # If the triangle to its right (proceeding col) is on the lattice
             if idx+N < N*M-N:
                 faces.append(
                     {'adjacent_cell': idx+N,
-                     'vertices': [vertices[1], vertices[2]]}
+                     'vertices': [vertices[2], vertices[0]]}
                 )
     # If the flat edge of the triangle is formed by vertices[1] and vertices[2]
-    elif vertices[2] - vertices[1] == N:
+    elif vertices[0] - vertices[1] == N:
         if vertices[1] % 2 == 0:
             # Unused???
             faces.append(
@@ -99,27 +99,27 @@ def index_3_gon(vertices, idx, N, M, pos):
         else:
             faces.append(
                 {'adjacent_cell': idx+1,
-                 'vertices': [vertices[1], vertices[2]]} 
+                 'vertices': [vertices[1], vertices[0]]} 
             )
             # If the triangle to its right (previous poly) is on the lattice
             if idx-1 > 0:
                 faces.append(
                     {'adjacent_cell': idx-1,
-                     'vertices': [vertices[0], vertices[1]]},    
+                     'vertices': [vertices[0], vertices[2]]},    
                 )
             # If the triangle to its left (previous col) is on the lattice
-            if idx-N-2 > 0:
+            if idx-N-3 > 0:
                 faces.append(
-                    {'adjacent_cell': idx+N,
+                    {'adjacent_cell': idx-N-3,
                      'vertices': [vertices[1], vertices[2]]}
                 )
     # If the flat edge of the triangle is formed by vertices[0] and vertices[1]
-    elif vertices[1] - vertices[0] == N:
+    elif vertices[0] - vertices[2] == N:
         # Tip of triangle is odd number and exists above flat edge
         if vertices[1] % 2 == 0:
             faces.append(
                 {'adjacent_cell': idx-1,
-                 'vertices': [vertices[1], vertices[0]]} 
+                 'vertices': [vertices[1], vertices[2]]} 
             )
             # If the triangle to its left (proceeding poly) is on the lattice
             if idx+1 > 0:
@@ -128,10 +128,10 @@ def index_3_gon(vertices, idx, N, M, pos):
                      'vertices': [vertices[0], vertices[2]]},    
                 )
             # If the triangle to its right (proceeding col) is on the lattice
-            if 0 < idx+N+2 < N*M:
+            if 0 < idx+N+1 < N*M:
                 faces.append(
-                    {'adjacent_cell': idx+N+2,
-                     'vertices': [vertices[1], vertices[2]]}
+                    {'adjacent_cell': idx+N+1,
+                     'vertices': [vertices[1], vertices[0]]}
                 )
         else:
             # Unused???
@@ -157,6 +157,7 @@ def index_3_gon(vertices, idx, N, M, pos):
             (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
         ]),
         'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
+        # TODO: Scale this down!!!
         'volume': np.sqrt(3)/4,
         'adjacency': [
             [vertices[0], vertices[1]],
@@ -169,20 +170,20 @@ def index_3_gon(vertices, idx, N, M, pos):
 def index_4_gon(vertices, idx, N, M, pos):
     # Squares will always have top and bottom neighbors
     faces = [
-        {'adjacent_cell': idx+1, 'vertices': [vertices[0], vertices[2]]},
-        {'adjacent_cell': idx-1, 'vertices': [vertices[1], vertices[3]]}
+        {'adjacent_cell': idx+1, 'vertices': [vertices[1], vertices[0]]},
+        {'adjacent_cell': idx-1, 'vertices': [vertices[2], vertices[3]]}
     ]
     # If the square's left neighbor exists on the lattice
     if idx-int((5.928571429*(N/4))-2.678571429) > 0:
         faces.append(
             {'adjacent_cell': idx-int((5.928571429*(N/4))-2.678571429),
-             'vertices': [vertices[0], vertices[1]]}
+             'vertices': [vertices[1], vertices[2]]}
         )
     # If the square's right neighbor exists on the lattice
     if int((5.928571429*(N/4))-2.678571429)+idx < N*M-N:
         faces.append(
             {'adjacent_cell': int((5.928571429*(N/4))-2.678571429)+idx,
-             'vertices': [vertices[2], vertices[3]]}
+             'vertices': [vertices[0], vertices[3]]}
         )
     # Create cell in format of pyvoro package
     cell = {
@@ -191,7 +192,12 @@ def index_4_gon(vertices, idx, N, M, pos):
             (pos[vertices[0]][0]+pos[vertices[2]][0])/2,
             (pos[vertices[0]][1]+pos[vertices[1]][1])/2
         ]),
-        'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]], pos[vertices[3]]],
+        'vertices': [
+            pos[vertices[0]], 
+            pos[vertices[1]], 
+            pos[vertices[2]], 
+            pos[vertices[3]]
+        ],
         'volume': np.sqrt(3)/4,
         'adjacency': [
             [vertices[0], vertices[1]],
@@ -231,12 +237,12 @@ def lattice_cells(n, m):
                     # If the vertex is part of both a square and a downward
                     # facing triangle on an even row
                     if row % 4 == 3:
-                        polys.append(sorted([idx, idx-1, idx-N]))
-                        polys.append(sorted([idx, idx-N, idx-N+1, idx+1]))
+                        polys.append([idx, idx-1, idx-N])
+                        polys.append([idx+1, idx-N+1, idx-N, idx])
                     # Otherwise, handle the vertex of the top right corner of
                     # each square on the even row
                     else:
-                        polys.append(sorted([idx, idx+1, idx-N]))
+                        polys.append([idx+1, idx-N, idx])
                     
                     # Connect current vertex to vertex on same row in prev col
                     G.add_edge(idx, idx-N)
@@ -249,8 +255,8 @@ def lattice_cells(n, m):
             # If the vertex is the bottom left corner of a square on an odd row
             if row % 4 == 1 and idx > N:
                 if row != N - 1:
-                    polys.append(sorted([idx, idx-N, idx-N-1]))
-                    polys.append(sorted([idx, idx-N, idx-N+1, idx+1]))
+                    polys.append([idx, idx-N, idx-N-1])
+                    polys.append([idx+1, idx-N+1, idx-N, idx])
                 G.add_edge(idx, idx-N-1)
                 # If the vertex is not in the first column
                 if row < N-1:
@@ -258,7 +264,7 @@ def lattice_cells(n, m):
             
             # If the vertex is the top left corner of a square on an odd row
             if row % 4 == 2 and idx > N:
-                polys.append(sorted([idx, idx-N, idx-N+1]))
+                polys.append([idx-N+1, idx-N, idx])
                 G.add_edge(idx, idx-N)
                 G.add_edge(idx, idx-N+1)
     
@@ -280,18 +286,15 @@ def lattice_cells(n, m):
 
     shapes.pop(M*N-N, None)
     
-    # Convert dictionary of shapes to list of cells in same format as pyvoro
-    # cells = index_cells(shapes, pos, N, M)
-    return index_cells(shapes, pos, N, M)
-    
-    # for cell in cells:
-    #     print(cell, cells[cell])
-    
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
     # nx.draw(G, pos=pos, node_size=0)
     # plt.axis('scaled')
     # plt.show()
+    
+    # Convert dictionary of shapes to list of cells in same format as pyvoro
+    return index_cells(shapes, pos, N, M)
 
 if __name__ == "__main__":
-    print(lattice_cells(2.5, 5))
+    lattice_cells(2.5, 5)
+    
