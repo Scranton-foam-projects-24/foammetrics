@@ -157,8 +157,7 @@ def index_3_gon(vertices, idx, N, M, pos):
             (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
         ]),
         'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
-        # TODO: Scale this down!!!
-        'volume': np.sqrt(3)/4,
+        'volume': np.sqrt(3)/(4*M),
         'adjacency': [
             [vertices[0], vertices[1]],
             [vertices[0], vertices[2]],
@@ -189,8 +188,8 @@ def index_4_gon(vertices, idx, N, M, pos):
     cell = {
         'faces': faces,
         'original': np.array([
-            (pos[vertices[0]][0]+pos[vertices[2]][0])/2,
-            (pos[vertices[0]][1]+pos[vertices[1]][1])/2
+            (pos[vertices[0]][0]+pos[vertices[1]][0])/2,
+            (pos[vertices[0]][1]+pos[vertices[2]][1])/2
         ]),
         'vertices': [
             pos[vertices[0]], 
@@ -199,7 +198,7 @@ def index_4_gon(vertices, idx, N, M, pos):
             pos[vertices[3]]
         ],
         # TODO: Scale this down and correct it!!!
-        'volume': np.sqrt(3)/4,
+        'volume': ((pos[vertices[0]][0]+pos[vertices[1]][0])/M)**2,
         'adjacency': [
             [vertices[0], vertices[1]],
             [vertices[1], vertices[3]],
@@ -209,6 +208,9 @@ def index_4_gon(vertices, idx, N, M, pos):
     }
     return cell
 
+# TODO: Fix issue with squares that become rectangles, has something to do with
+#       the scaling of the vertices, because the side lengths do not match
+# TODO: Fix issue with disappearing polygons
 def lattice_cells(n, m):
     G = nx.Graph()
     pos = {}
@@ -280,12 +282,6 @@ def lattice_cells(n, m):
     # Attach indices to each shape by incorporating it into a dictionary
     for i, poly in enumerate(polys):
         shapes[i] = poly
-        
-    # Remove extraneous shapes
-    if M*N % 4 == 0:
-        shapes.pop(M*N-1, None)
-
-    shapes.pop(M*N-N, None)
     
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)

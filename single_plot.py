@@ -5,15 +5,15 @@ import lattice_3_3_4_4 as lat3344
 import lattice_4_8_8 as lat488
 
 N = 3
-M = 4
+M = 8
 
-# cells = lat3344.lattice_cells(N, M)
-cells = lat488.lattice_cells(N, M)
+cells = lat3344.lattice_cells(N, M)
+# cells = lat488.lattice_cells(N, M)
 
 points = []
 for i, cell in enumerate(cells):    
     polygon = cell['vertices']
-    print(cell['original'])
+    # print(i, cell['vertices'])
     points.append(cell['original'].tolist())
     plt.fill(*zip(*polygon),  color = 'black', alpha=0.1)
 
