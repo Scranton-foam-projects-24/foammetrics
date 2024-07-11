@@ -16,77 +16,65 @@ def index_4_gon(vertices, idx, N, M, pos):
     height = (2*int(N/4))-1
     if vertices[0] % N == 4:
         faces.append([
-            {
-                'adjacent_cell': idx+1,
-                'vertices': [vertices[0], vertices[1]]
+            {'adjacent_cell': idx+1,
+             'vertices': [vertices[0], vertices[1]]
             },
-            {
-                'adjacent_cell': idx-1,
-                'vertices': [vertices[2], vertices[3]]
+            {'adjacent_cell': idx-1,
+             'vertices': [vertices[2], vertices[3]]
             }
         ])
         if vertices[0] > N * 4:
             faces.append(
-                {
-                    'adjacent_cell': idx-1,
-                    'vertices': [vertices[1], vertices[2]]
+                {'adjacent_cell': idx-1,
+                 'vertices': [vertices[1], vertices[2]]
                 }
             )
         if vertices[0] < (N*M)-(N*2):
             faces.append(
-                {
-                    'adjacent_cell': idx+height,
-                    'vertices': [vertices[0], vertices[3]]
+                {'adjacent_cell': idx+height,
+                 'vertices': [vertices[0], vertices[3]]
                 }
             )
     elif vertices[0] % N == 2:
         faces.append([
-            {
-                'adjacent_cell': idx-height,
-                'vertices': [vertices[1], vertices[2]]
+            {'adjacent_cell': idx-height,
+             'vertices': [vertices[1], vertices[2]]
             },
-            {
-                'adjacent_cell': idx+height,
-                'vertices': [vertices[0], vertices[3]]
+            {'adjacent_cell': idx+height,
+             'vertices': [vertices[0], vertices[3]]
             }
         ])
         if vertices[0] % N == N-2:
             faces.append(
-                {
-                    'adjacent_cell': idx-1,
-                    'vertices': [vertices[0], vertices[1]]
+                {'adjacent_cell': idx-1,
+                 'vertices': [vertices[0], vertices[1]]
                 }
             )
         elif vertices[0] % N == 2:
             faces.append(
-                {
-                    'adjacent_cell': idx+1, 
-                    'vertices': [vertices[0], vertices[1]]
+                {'adjacent_cell': idx+1, 
+                 'vertices': [vertices[0], vertices[1]]
                 }
             )
     else:
         faces.append([
-            {
-                'adjacent_cell': idx+1,
-                'vertices': [vertices[0], vertices[1]]
+            {'adjacent_cell': idx+1,
+             'vertices': [vertices[0], vertices[1]]
             },
-            {
-                'adjacent_cell': idx-1,
-                'vertices': [vertices[2], vertices[3]]
+            {'adjacent_cell': idx-1,
+             'vertices': [vertices[2], vertices[3]]
             },
         ])
         if idx-height-1 > 0:
             faces.append(
-                {
-                    'adjacent_cell': idx-height,
-                    'vertices': [vertices[1], vertices[2]]
+                {'adjacent_cell': idx-height,
+                 'vertices': [vertices[1], vertices[2]]
                 }
             )
         if idx+height+1 < N*M:
             faces.append(
-                {
-                    'adjacent_cell': idx+height,
-                    'vertices': [vertices[0], vertices[3]]
+                {'adjacent_cell': idx+height,
+                 'vertices': [vertices[0], vertices[3]]
                 }
             )
 
@@ -94,67 +82,189 @@ def index_4_gon(vertices, idx, N, M, pos):
     cell = {
         'faces': faces,
         'original': np.array([
-            (pos[vertices[0]][0]+pos[vertices[2]][0])/2,
-            (pos[vertices[0]][1]+pos[vertices[1]][1])/2
+            (pos[vertices[0]][0]+pos[vertices[1]][0])/2,
+            (pos[vertices[0]][1]+pos[vertices[3]][1])/2
         ]),
         'vertices': [
-            pos[vertices[0]], 
-            pos[vertices[1]], 
-            pos[vertices[2]], 
+            pos[vertices[0]],
+            pos[vertices[1]],
+            pos[vertices[2]],
             pos[vertices[3]]
         ],
-        'volume': np.sqrt(3)/4,
+        'volume': np.sqrt(2)+1,
         'adjacency': [
             [vertices[0], vertices[1]],
-            [vertices[1], vertices[3]],
-            [vertices[3], vertices[2]],
-            [vertices[2], vertices[0]]
+            [vertices[1], vertices[2]],
+            [vertices[2], vertices[3]],
+            [vertices[3], vertices[0]]
         ]
     }
     return cell
 
 def index_8_gon(vertices, idx, N, M, pos):
     faces = []
-    print(vertices[0])
-    print(vertices[0]%M)
     height = (2*int(N/4))-1
+    # Handle octagons which are completely enclosed by other polygons
     if vertices[0] % 4 == 0:
         faces.append([
-            {
-                'adjacent_cell': idx+height+1, 
-                'vertices': [vertices[0], vertices[1]]
+            # Octagon neighbor up and to the right
+            {'adjacent_cell': idx+height+1, 
+             'vertices': [vertices[0], vertices[1]]
             },
-            {
-                'adjacent_cell': idx+1, 
-                'vertices': [vertices[1], vertices[2]]
+            # Square immediately above this octagon
+            {'adjacent_cell': idx+1, 
+             'vertices': [vertices[1], vertices[2]]
             },
-            {
-                'adjacent_cell': idx-height+1,
-                'vertices': [vertices[2], vertices[3]]
+            # Octagon neighbor up and to the left
+            {'adjacent_cell': idx-height+1,
+             'vertices': [vertices[2], vertices[3]]
             },
-            {
-                'adjacent_cell': idx-height,
-                'vertices': [vertices[3], vertices[4]]
+            # Square immediately to the left of this octagon
+            {'adjacent_cell': idx-height,
+             'vertices': [vertices[3], vertices[4]]
             },
-            {
-                'adjacent_cell': idx-height-1,
-                'vertices': [vertices[4], vertices[5]]
+            # Octagon neighbor down and to the left
+            {'adjacent_cell': idx-height-1,
+             'vertices': [vertices[4], vertices[5]]
             },
-            {
-                'adjacent_cell': idx-1,
-                'vertices': [vertices[5], vertices[6]]
+            # Square immediately below this octagon
+            {'adjacent_cell': idx-1,
+             'vertices': [vertices[5], vertices[6]]
             },
-            {
-                'adjacent_cell': idx+height-1,
-                'vertices': [vertices[6], vertices[7]]
+            # Octagon neighbor down and to the right
+            {'adjacent_cell': idx+height-1,
+             'vertices': [vertices[6], vertices[7]]
             },
-            {
-                'adjacent_cell': idx+height,
-                'vertices': [vertices[0], vertices[7]]
+            # Square immediately to the right of this octagon
+            {'adjacent_cell': idx+height,
+             'vertices': [vertices[0], vertices[7]]
             },
         ])
-    # TODO: account for other octagons which are delibarately made by vertex placement
-    return {'faces': faces}
+    # Handle octagons which may (not) be on the edge of the lattice
+    else:
+        # If octagon doesn't lie on left edge of lattice
+        if vertices[0] > N*4:
+            faces.append(
+                {'adjacent_cell': idx-height, 
+                 'vertices': [vertices[3], vertices[4]]
+                })
+            # If octagon doesn't lie on top edge and left edge of lattice
+            if vertices[0] % N < N-2:
+                faces.append(
+                    {'adjacent_cell': idx-height+1, 
+                     'vertices': [vertices[2], vertices[3]]
+                    })
+            # If octagon doesn't lie on bottom edge and left edge of lattice
+            if vertices[0] % N > 2:
+                faces.append(
+                    {'adjacent_cell': idx-height-1, 
+                     'vertices': [vertices[4], vertices[5]]
+                    })
+        # If octagon doesn't lie on right edge of lattice
+        if vertices[0] < (M*N)-N:
+            faces.append(
+                {'adjacent_cell': idx+height, 
+                 'vertices': [vertices[0], vertices[7]]
+                })
+            if vertices[0] % N < N-2:
+                # If octagon doesn't lie on top edge and right edge of lattice
+                faces.append(
+                    {'adjacent_cell': idx+height+1, 
+                     'vertices': [vertices[0], vertices[1]]
+                    })
+            if vertices[0] % N > 2:
+                # If octagon doesn't lie on bottom edge and right edge of lattice
+                faces.append(
+                    {'adjacent_cell': idx+height-1, 
+                     'vertices': [vertices[6], vertices[7]]
+                    })
+        # If octagon doesn't lie on top edge of lattice
+        if vertices[0] % N < N-2:
+            faces.append(
+                {'adjacent_cell': idx+1, 
+                 'vertices': [vertices[1], vertices[2]]
+                })
+        # If octagon doesn't lie on bottom edge of lattice
+        if vertices[0] % N > 2:
+            faces.append(
+                {'adjacent_cell': idx-1, 
+                 'vertices': [vertices[5], vertices[6]]
+                })
+        
+    # Create cell in format of pyvoro package
+    side_len = pos[vertices[0]][1] - pos[vertices[7]][1]
+    area = side_len/(2*np.sin(np.pi/8))
+    cell = {
+        'faces': faces,
+        'original': np.array([
+            (pos[vertices[0]][0] + pos[vertices[3]][0])/2,
+            (pos[vertices[1]][1] + pos[vertices[6]][1])/2
+        ]),
+        'vertices': [
+            pos[vertices[0]],
+            pos[vertices[1]],
+            pos[vertices[2]],
+            pos[vertices[3]],
+            pos[vertices[4]],
+            pos[vertices[5]],
+            pos[vertices[6]],
+            pos[vertices[7]]
+        ],
+        'volume': area,
+        'adjacency': [
+            [vertices[0], vertices[1]],
+            [vertices[1], vertices[2]],
+            [vertices[2], vertices[3]],
+            [vertices[3], vertices[4]],
+            [vertices[4], vertices[5]],
+            [vertices[5], vertices[6]],
+            [vertices[6], vertices[7]],
+            [vertices[7], vertices[0]]
+        ]
+    }
+    return cell
+
+def adjust_octagon(pos, idx, N, M):
+    # If octagon lies on left edge
+    if idx-(3*N) < N:
+        pos[idx-(3*N)] = np.array([
+            pos[idx-(3*N)][0] + (np.sqrt(2)-1)/(4*M),
+            pos[idx-(3*N)][1] + (np.sqrt(2)-1)/(4*N)
+        ])
+        pos[idx-(3*N)-1] = np.array([
+            pos[idx-(3*N)-1][0] + (np.sqrt(2)-1)/(4*M),
+            pos[idx-(3*N)-1][1] - (np.sqrt(2)-1)/(4*N)
+        ])
+    # If octagon lies on right edge
+    if idx > (M*N)-N:
+        pos[idx] = np.array([
+            pos[idx][0] - (np.sqrt(2)-1)/(4*M),
+            pos[idx][1] + (np.sqrt(2)-1)/(4*N)
+        ])
+        pos[idx-1] = np.array([
+            pos[idx-1][0] - (np.sqrt(2)-1)/(4*M),
+            pos[idx-1][1] - (np.sqrt(2)-1)/(4*N)
+        ])
+    # If octagon lies on top edge
+    if (idx-N+1) % N == N-1:
+        pos[idx-N+1] = np.array([
+            pos[idx-N+1][0] + (np.sqrt(2)-1)/(4*M),
+            pos[idx-N+1][1] - (np.sqrt(2)-1)/(4*N)
+        ])
+        pos[idx-(2*N)+1] = np.array([
+            pos[idx-(2*N)+1][0] - (np.sqrt(2)-1)/(4*M),
+            pos[idx-(2*N)+1][1] - (np.sqrt(2)-1)/(4*N)
+        ])
+    # If octagon lies on bottom edge
+    if (idx-N-2) % N == 0:
+        pos[idx-N-2] = np.array([
+            pos[idx-N-2][0] + (np.sqrt(2)-1)/(4*M),
+            pos[idx-N-2][1] + (np.sqrt(2)-1)/(4*N)
+        ])
+        pos[idx-(2*N)-2] = np.array([
+            pos[idx-(2*N)-2][0] - (np.sqrt(2)-1)/(4*M),
+            pos[idx-(2*N)-2][1] + (np.sqrt(2)-1)/(4*N)
+        ])
 
 def lattice_cells(n, m):
     G = nx.Graph()
@@ -167,7 +277,7 @@ def lattice_cells(n, m):
     
     for col in range(0, M):
         # Start every new column of points with an initial point
-        pos[N*col] = np.array([col, 0])
+        pos[N*col] = np.array([col/M, 0])
         
         # If the point is part of the bottom edge of an octagon
         if col > 0 and col % 4 == 2:
@@ -181,7 +291,8 @@ def lattice_cells(n, m):
             if 1 < row % 4 < 3 and idx-1 in G.nodes:
                 G.add_edge(idx, idx-1)
             
-            pos[idx] = np.array([col, row])
+            if idx not in pos.keys():
+                pos[idx] = np.array([col/M, row/N])
 
             # Handle diagonal edges of octagons
             if col < M-1:
@@ -214,6 +325,7 @@ def lattice_cells(n, m):
                     idx-N-2, 
                     idx-1
                 ])
+                adjust_octagon(pos, idx, N, M)
             
             # Handle squares inside of and horizontally connecting octagons
             if 0 < row % 4 < 3 and idx in G.nodes:
@@ -230,6 +342,25 @@ def lattice_cells(n, m):
                             idx-1,
                             idx+N-1
                         ])
+                        # Adjust position of square's vertices to correct edge
+                        # lengths of octagon, staring with next col's vertices
+                        pos[idx+N] = np.array([
+                            pos[idx][0] + (1/M) + (np.sqrt(2)-1)/(4*M),
+                            pos[idx][1] + (np.sqrt(2)-1)/(4*N)
+                        ])
+                        pos[idx+N-1] = np.array([
+                            pos[idx-1][0] + (1/M) + (np.sqrt(2)-1)/(4*M),
+                            pos[idx-1][1] - (np.sqrt(2)-1)/(4*N)
+                        ])
+                        # Adjust prev col's vertices
+                        pos[idx] = np.array([
+                            pos[idx][0] - (np.sqrt(2)-1)/(4*M),
+                            pos[idx][1] + (np.sqrt(2)-1)/(4*N)
+                        ])
+                        pos[idx-1] = np.array([
+                            pos[idx-1][0] - (np.sqrt(2)-1)/(4*M),
+                            pos[idx-1][1] - (np.sqrt(2)-1)/(4*N)
+                        ])
             
             # Handle squares vertically connecting octagons
             if col % 4 == 2 and (row % 4 == 0 or row % 4 == 3):
@@ -244,6 +375,24 @@ def lattice_cells(n, m):
                             idx-N,
                             idx-N-1,
                             idx-1
+                        ])
+                        # Adjust position of square's vertices to correct edge
+                        # lengths of octagon
+                        pos[idx] = np.array([
+                            pos[idx][0] + (np.sqrt(2)-1)/(4*M),
+                            pos[idx][1] + (np.sqrt(2)-1)/(4*N)
+                        ])
+                        pos[idx-N] = np.array([
+                            pos[idx-N][0] - (np.sqrt(2)-1)/(4*M),
+                            pos[idx-N][1] + (np.sqrt(2)-1)/(4*N)
+                        ])
+                        pos[idx-N-1] = np.array([
+                            pos[idx-N-1][0] - (np.sqrt(2)-1)/(4*M),
+                            pos[idx-N-1][1] - (np.sqrt(2)-1)/(4*N)
+                        ])
+                        pos[idx-1] = np.array([
+                            pos[idx-1][0] + (np.sqrt(2)-1)/(4*M),
+                            pos[idx-1][1] - (np.sqrt(2)-1)/(4*N)
                         ])
                         
             # Additional handling of squares vertically connecting octagons
@@ -264,23 +413,23 @@ def lattice_cells(n, m):
                             idx-1
                         ])
     
-    # TODO: Loop will not trigger if function is called with (1, 1)
     for i in range((2 * len(octagons)) - 1):
         shapes[i] = octagons.pop(0) if i % 2 == 0 else squares.pop(0)
+    
+    # Show centroids for debugging when necessary
+    # for i, cell in enumerate(index_cells(shapes, pos, N, M)):
+    #     center = i + len(pos)
+    #     pos[center] = cell['original']
+    #     if center+1 < len(shapes)+len(pos):
+    #         G.add_node(center)
         
     # Show nodes and labels for debugging when necessary
-    nx.draw(G, pos=pos, with_labels=True)
-    # print(sorted(G.nodes))
+    # nx.draw(G, pos=pos, with_labels=True)
     # nx.draw(G, pos=pos, node_size=0)
-    plt.axis('scaled')
-    plt.show()
+    # plt.axis('scaled')
+    # plt.show()
     
-    # print(shapes)
     return index_cells(shapes, pos, N, M)
 
 if __name__ == "__main__":
-    cells = lattice_cells(2, 3)
-    for i, cell in enumerate(cells):
-        if cell is not None:
-            print(i, cell['faces'])
-        pass
+    cells = lattice_cells(1, 1)

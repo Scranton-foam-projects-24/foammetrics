@@ -198,6 +198,7 @@ def index_4_gon(vertices, idx, N, M, pos):
             pos[vertices[2]], 
             pos[vertices[3]]
         ],
+        # TODO: Scale this down and correct it!!!
         'volume': np.sqrt(3)/4,
         'adjacency': [
             [vertices[0], vertices[1]],
