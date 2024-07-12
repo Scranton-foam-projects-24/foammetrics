@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def index_cells(shapes, pos, N, M):
     cells = []
@@ -197,7 +197,7 @@ def index_4_gon(vertices, idx, N, M, pos):
             pos[vertices[2]], 
             pos[vertices[3]]
         ],
-        # TODO: Scale this down and correct it!!!
+        # TODO: Scale this down and correct it!!! *Fix scaling issue first
         'volume': ((pos[vertices[0]][0]+pos[vertices[1]][0])/M)**2,
         'adjacency': [
             [vertices[0], vertices[1]],
@@ -210,18 +210,22 @@ def index_4_gon(vertices, idx, N, M, pos):
 
 # TODO: Fix issue with squares that become rectangles, has something to do with
 #       the scaling of the vertices, because the side lengths do not match
-# TODO: Fix issue with disappearing polygons
+# Issue: polygons are scaled to fit within the unit canvas, and the scaling
+#        results in the aspect ratio being changed to something != 1:1, when 
+#        N != M
+# TODO: lattice_cells(1.5, <3) produces unintended behavior
 def lattice_cells(n, m):
     G = nx.Graph()
     pos = {}
     polys = []
     shapes = {}
+    
     M = m
     N = int(4 * n)
     
     for col in range(0,M):
         # Initialize column with a vertex
-        pos[N*col] = np.array([(col+0.5)/M,0/N])
+        pos[N*col] = np.array([(col+0.5)/M,0])
         
         # Construct a column of vertices which are all connected according to
         # the 3^2, 4^2 Archimedian Lattice
@@ -284,14 +288,14 @@ def lattice_cells(n, m):
         shapes[i] = poly
     
     # Show nodes and labels for debugging when necessary
-    # nx.draw(G, pos=pos, with_labels=True)
+    nx.draw(G, pos=pos, with_labels=True)
     # nx.draw(G, pos=pos, node_size=0)
-    # plt.axis('scaled')
-    # plt.show()
+    plt.axis('scaled')
+    plt.show()
     
     # Convert dictionary of shapes to list of cells in same format as pyvoro
     return index_cells(shapes, pos, N, M)
 
 if __name__ == "__main__":
-    lattice_cells(2.5, 5)
+    lattice_cells(3, 3)
     
