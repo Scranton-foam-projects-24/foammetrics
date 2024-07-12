@@ -50,55 +50,105 @@ def lattice_cells(n, m):
             # if idx-1 > -1 and idx % N != 0:
             #     G.add_edge(idx, idx-1)
             #     pos[idx] = np.array([(col-int(col/7))/M, row/N])
-           
+            
+            # Draw right edge of dodecagon
             if row % 8 == 4 and col % 7 == 6:
                 G.add_edge(idx, idx-1)
                 G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                polys.append([
+                    idx, 
+                    idx-N+1, 
+                    idx-(2*N)+2, 
+                    idx-(4*N)+2, 
+                    idx-(5*N)+1, 
+                    idx-(6*N),
+                    idx-(6*N)-1,
+                    idx-(5*N)-2,
+                    idx-(4*N)-3,
+                    idx-(2*N)-3,
+                    idx-N-2,
+                    idx-1
+                ])
+            # Draw top and bottom edges of dodecagon
             elif ((row % 8 == 1 and col % 7 == 4) or
                   (row % 8 == 6 and col % 7 == 4)
             ):
                 G.add_edge(idx, idx-(2*N))
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+            # Draw edge under dodecagon's left edge
             elif row % 8 == 2 and col % 7 == 1:
+                # If dodecagon lies on left edge, only connect to left edge
                 if idx < 2*N:
                     G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
                     G.add_edge(idx, idx-(N*3))
                     G.add_edge(idx, idx-(N*2)+1)
+                    polys.append([idx-(N*2)+1, idx-(N*3), idx])
+            # Draw edge left of the bottom edge, and right of the top edge
             elif ((row % 8 == 1 and col % 7 == 2) or
                   (row % 8 == 5 and col % 7 == 5)
             ):
                 G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+            # Draw edge on top of dodecagon's left edge
             elif row % 8 == 5 and col % 7 == 1:
+                # If dodecagon lies on left edge, only connect to left edge
                 if idx < 2*N:
                     G.add_edge(idx, idx-N-1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
                     G.add_edge(idx, idx-(N*3))
                     G.add_edge(idx, idx-(N*2)-1)
+                    polys.append([idx-(N*2)-1, idx, idx-(N*3)])
+            # Draw edge to left of the top edge, under the right edge, and
+            # to the right of the bottom edge
             elif ((row % 8 == 6 and col % 7 == 2) or
                   (row % 8 == 2 and col % 7 == 5) or
                   (row % 8 == 3 and col % 7 == 6)
             ):
                 G.add_edge(idx, idx-N-1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+            # Draw top triangle
             elif row % 8 == 7 and col % 7 == 3:
                 G.add_edge(idx, idx-N-1)
                 G.add_edge(idx, idx+N-1)
+                # If dodecagon doesn't lie on top of lattice, connect to bottom
+                # triangle of above dodecagon
                 if row % N < N-1:
                     G.add_edge(idx, idx+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                polys.append([idx, idx-N-1, idx+N-1])
+            # Draw bottom triangle
             elif row % 8 == 0 and col % 7 == 3:
                 G.add_edge(idx, idx-N+1)
                 G.add_edge(idx, idx+N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                polys.append([idx, idx+N+1, idx-N+1])
+                
+            # Add dodecagon indirectly created by adjacent polygons
+            if row % 8 == 0 and col % 7 == 0 and row > 0 and col > 0:
+                polys.append([
+                    idx+(3*N), 
+                    idx+(2*N)+1, 
+                    idx+N+2, 
+                    idx-(2*N)+2, 
+                    idx-(3*N)+1, 
+                    idx-(4*N),
+                    idx-(4*N)-1,
+                    idx-(3*N)-2,
+                    idx-(2*N)-3,
+                    idx+N-3,
+                    idx+(2*N)-2,
+                    idx+(3*N)-1
+                ])
         
-        # TODO: Make the two side triangles become one larger triangle
         col += 1
     
+    print(polys)
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
     nx.draw(G, pos=pos, node_size=0)
@@ -106,4 +156,4 @@ def lattice_cells(n, m):
     plt.show()
     
 if __name__ == "__main__":
-    lattice_cells(2,2)
+    lattice_cells(2, 2)
