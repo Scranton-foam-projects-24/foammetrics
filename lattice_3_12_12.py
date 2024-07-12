@@ -13,14 +13,31 @@ def index_cells(shapes, pos, N, M):
 
 def index_3_gon(vertices, idx, N, M, pos):
     faces = []
+    # print(vertices)
+    # TODO: Figure out how to determine what indices will put a triangle on the
+    # edge of the lattice or not
+    # idx in this context is what position w/in the polys list it is, not any
+    # specific vertex index
+    # It's also possible to go by vertices, but that may prove more challenging
+    if  ((N/8)*3)-1 < idx < ((N/8)*(M/8)*3)-2:
+        print("inside", vertices)
+        
+    # Triangle always has three neighbors,
+    # except for when it lies on the border of the lattice
     
 def index_12_gon(vertices, idx, N, M, pos):
     faces = []
     
+    # Even with the implicitly created dodecagons, having 12 neighbors is not
+    # inherently guaranteed, meaning that we have to check if both the 
+    # explicitly and implicitly created dodecagons lie on the border of the
+    # lattice.
+    
 def lattice_cells(n, m):
     G = nx.Graph()
     pos = {}
-    polys = []
+    triangles = []
+    dodecagons = []
     shapes = {}
     
     M = 7 * m
@@ -56,7 +73,7 @@ def lattice_cells(n, m):
                 G.add_edge(idx, idx-1)
                 G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
-                polys.append([
+                dodecagons.append([
                     idx, 
                     idx-N+1, 
                     idx-(2*N)+2, 
@@ -84,9 +101,10 @@ def lattice_cells(n, m):
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
                 # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
-                    G.add_edge(idx, idx-(N*3))
                     G.add_edge(idx, idx-(N*2)+1)
-                    polys.append([idx-(N*2)+1, idx-(N*3), idx])
+                    if row > 2:
+                        G.add_edge(idx, idx-(N*3))
+                        triangles.append([idx-(N*2)+1, idx-(N*3), idx])
             # Draw edge left of the bottom edge, and right of the top edge
             elif ((row % 8 == 1 and col % 7 == 2) or
                   (row % 8 == 5 and col % 7 == 5)
@@ -101,9 +119,10 @@ def lattice_cells(n, m):
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
                 # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
-                    G.add_edge(idx, idx-(N*3))
                     G.add_edge(idx, idx-(N*2)-1)
-                    polys.append([idx-(N*2)-1, idx, idx-(N*3)])
+                    if row < N-3:
+                        G.add_edge(idx, idx-(N*3))
+                        triangles.append([idx-(N*2)-1, idx, idx-(N*3)])
             # Draw edge to left of the top edge, under the right edge, and
             # to the right of the bottom edge
             elif ((row % 8 == 6 and col % 7 == 2) or
@@ -121,17 +140,17 @@ def lattice_cells(n, m):
                 if row % N < N-1:
                     G.add_edge(idx, idx+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
-                polys.append([idx, idx-N-1, idx+N-1])
+                triangles.append([idx, idx-N-1, idx+N-1])
             # Draw bottom triangle
             elif row % 8 == 0 and col % 7 == 3:
                 G.add_edge(idx, idx-N+1)
                 G.add_edge(idx, idx+N+1)
                 pos[idx] = np.array([(col-int(col/7))/M, row/N])
-                polys.append([idx, idx+N+1, idx-N+1])
+                triangles.append([idx, idx+N+1, idx-N+1])
                 
             # Add dodecagon indirectly created by adjacent polygons
             if row % 8 == 0 and col % 7 == 0 and row > 0 and col > 0:
-                polys.append([
+                dodecagons.append([
                     idx+(3*N), 
                     idx+(2*N)+1, 
                     idx+N+2, 
@@ -148,12 +167,25 @@ def lattice_cells(n, m):
         
         col += 1
     
-    print(polys)
+    # TODO: Shorten the length of the flat face of each triangle to make the 
+    #       dodecagons actually appear as dodecagons
+    
+    # print(triangles)
+    # print(dodecagons)
+    
+    for i in range(len(triangles)+len(dodecagons)):
+        shapes[i] = dodecagons.pop(0) if i % 3 == 1 else triangles.pop(0)
+    
+    # for shape in shapes:
+    #     print(shape, shapes[shape])
+    
     # Show nodes and labels for debugging when necessary
-    # nx.draw(G, pos=pos, with_labels=True)
-    nx.draw(G, pos=pos, node_size=0)
+    nx.draw(G, pos=pos, with_labels=True)
+    # nx.draw(G, pos=pos, node_size=0)
     plt.axis('scaled')
     plt.show()
     
+    return index_cells(shapes, pos, N, M)
+    
 if __name__ == "__main__":
-    lattice_cells(2, 2)
+    lattice_cells(3,3)
