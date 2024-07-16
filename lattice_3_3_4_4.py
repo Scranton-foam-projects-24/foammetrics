@@ -288,8 +288,8 @@ def lattice_cells(n, m):
         shapes[i] = poly
     
     # Show nodes and labels for debugging when necessary
-    nx.draw(G, pos=pos, with_labels=True)
-    # nx.draw(G, pos=pos, node_size=0)
+    # nx.draw(G, pos=pos, with_labels=True)
+    nx.draw(G, pos=pos, node_size=0)
     plt.axis('scaled')
     plt.show()
     
@@ -297,5 +297,5 @@ def lattice_cells(n, m):
     return index_cells(shapes, pos, N, M)
 
 if __name__ == "__main__":
-    lattice_cells(3, 3)
+    lattice_cells(3, 8)
     

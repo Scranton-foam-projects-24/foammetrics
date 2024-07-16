@@ -40,6 +40,8 @@ def lattice_cells(n, m):
     dodecagons = []
     shapes = {}
     
+    edge_len = ((4/7) + (2/8) + (8*(np.sqrt((1/49)+(1/64)))))/12
+    
     M = 7 * m
     N = 8 * n
     
@@ -50,14 +52,16 @@ def lattice_cells(n, m):
     for i in range(0, N):        
         if i % 8 == 3:
             G.add_node(i)
+            pos[i] = np.array([0, int(i/8)*((4*np.sqrt(edge_len**2-(edge_len/2)**2))+(3*edge_len))])
         elif i % 8 == 4:
             G.add_edge(i, i-1)
+            pos[i] = np.array([0, pos[i-1][1]+edge_len])
             
         # else:
         #     G.add_node(i)
-        #     pos[i] = np.array([0, i/N])
+        #     pos[i] = np.array([0, ((i-3)/8)*((4*np.sqrt(edge_len**2-(edge_len/2)**2))+(3*edge_len))])
             
-        pos[i] = np.array([0, i/N])
+        
     
     while col < M: 
         pos[N*col] = np.array([(col-int(col/7))/M, 0])
@@ -66,13 +70,17 @@ def lattice_cells(n, m):
             
             # if idx-1 > -1 and idx % N != 0:
             #     G.add_edge(idx, idx-1)
-            #     pos[idx] = np.array([(col-int(col/7))/M, row/N])
+            #     pos[idx] = np.array([(col+edge_len)/M, ((row-3)/8)*((4*np.sqrt(edge_len**2-(edge_len/2)**2))+(3*edge_len))])
+            
             
             # Draw right edge of dodecagon
             if row % 8 == 4 and col % 7 == 6:
                 G.add_edge(idx, idx-1)
                 G.add_edge(idx, idx-N+1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N+1][0]+(edge_len/2),
+                    pos[idx-N+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
                 dodecagons.append([
                     idx, 
                     idx-N+1, 
@@ -92,45 +100,76 @@ def lattice_cells(n, m):
                   (row % 8 == 6 and col % 7 == 4)
             ):
                 G.add_edge(idx, idx-(2*N))
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-(2*N)][0]+edge_len,
+                    pos[idx-(2*N)][1]
+                ])
             # Draw edge under dodecagon's left edge
             elif row % 8 == 2 and col % 7 == 1:
                 # If dodecagon lies on left edge, only connect to left edge
+                print(idx)
                 if idx < 2*N:
                     G.add_edge(idx, idx-N+1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N+1-(col-int(col/7))][0]+(edge_len/2), # TODO: Reintroduce the col-int(col/7) term so this equals 51 when col=1
+                    pos[idx-N+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
                 # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
                     G.add_edge(idx, idx-(N*2)+1)
                     if row > 2:
                         G.add_edge(idx, idx-(N*3))
                         triangles.append([idx-(N*2)+1, idx-(N*3), idx])
-            # Draw edge left of the bottom edge, and right of the top edge
-            elif ((row % 8 == 1 and col % 7 == 2) or
-                  (row % 8 == 5 and col % 7 == 5)
-            ):
+            # Draw edge right of the top edge
+            elif row % 8 == 5 and col % 7 == 5:
                 G.add_edge(idx, idx-N+1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N+1][0]+np.sqrt(edge_len**2-(pos[idx-(4*N)][1]-pos[idx-N+1][1])**2), 
+                    pos[idx-(4*N)][1]
+                ])
+            # Draw edge left of the bottom edge
+            elif (row % 8 == 1 and col % 7 == 2):
+                G.add_edge(idx, idx-N+1)
+                pos[idx] = np.array([
+                    pos[idx-(2*N)+2][0]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2), 
+                    pos[idx-(2*N)+2][1]-(edge_len/2)-np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
             # Draw edge on top of dodecagon's left edge
             elif row % 8 == 5 and col % 7 == 1:
                 # If dodecagon lies on left edge, only connect to left edge
                 if idx < 2*N:
                     G.add_edge(idx, idx-N-1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N-1][0]+(edge_len/2),
+                    pos[idx-N-1][1]+np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
                 # Otherwise, draw edge to previous dodecagon, making triangle
                 if idx-(N*3) > 0:
                     G.add_edge(idx, idx-(N*2)-1)
                     if row < N-3:
                         G.add_edge(idx, idx-(N*3))
                         triangles.append([idx-(N*2)-1, idx, idx-(N*3)])
-            # Draw edge to left of the top edge, under the right edge, and
-            # to the right of the bottom edge
-            elif ((row % 8 == 6 and col % 7 == 2) or
-                  (row % 8 == 2 and col % 7 == 5) or
-                  (row % 8 == 3 and col % 7 == 6)
-            ):
+            # Draw edge to the right of the bottom edge
+            elif row % 8 == 2 and col % 7 == 5:
                 G.add_edge(idx, idx-N-1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N-1][0]+np.sqrt(edge_len**2-(pos[idx-(4*N)][1]-pos[idx-N-1][1])**2), 
+                    pos[idx-(4*N)][1]
+                ])
+            # Draw edge to the left of the top edge
+            elif (row % 8 == 6 and col % 7 == 2):
+                G.add_edge(idx, idx-N-1)
+                pos[idx] = np.array([
+                    pos[idx-(2*N)-2][0]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2), 
+                    pos[idx-(2*N)-2][1]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
+            # Draw edge under the right edge
+            elif (row % 8 == 3 and col % 7 == 6):
+                G.add_edge(idx, idx-N-1)
+                pos[idx] = np.array([
+                    pos[idx-N-1][0]+(edge_len/2),
+                    pos[idx-N-1][1]+np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
             # Draw top triangle
             elif row % 8 == 7 and col % 7 == 3:
                 G.add_edge(idx, idx-N-1)
@@ -139,13 +178,19 @@ def lattice_cells(n, m):
                 # triangle of above dodecagon
                 if row % N < N-1:
                     G.add_edge(idx, idx+1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N-1][0]+(edge_len/2),
+                    pos[idx-N-1][1]+np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
                 triangles.append([idx, idx-N-1, idx+N-1])
             # Draw bottom triangle
             elif row % 8 == 0 and col % 7 == 3:
                 G.add_edge(idx, idx-N+1)
                 G.add_edge(idx, idx+N+1)
-                pos[idx] = np.array([(col-int(col/7))/M, row/N])
+                pos[idx] = np.array([
+                    pos[idx-N+1][0]+(edge_len/2),
+                    pos[idx-N+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
+                ])
                 triangles.append([idx, idx+N+1, idx-N+1])
                 
             # Add dodecagon indirectly created by adjacent polygons
@@ -167,9 +212,6 @@ def lattice_cells(n, m):
         
         col += 1
     
-    # TODO: Shorten the length of the flat face of each triangle to make the 
-    #       dodecagons actually appear as dodecagons
-    
     # print(triangles)
     # print(dodecagons)
     
@@ -185,7 +227,14 @@ def lattice_cells(n, m):
     plt.axis('scaled')
     plt.show()
     
+    for position in pos:
+        print(position)
+    
+    # for edge in G.edges:
+    #     print(f"({pos[edge[1]][0]},{pos[edge[1]][1]}) - ({pos[edge[0]][0]},{pos[edge[0]][1]}) = {np.sqrt((pos[edge[1]][0]-pos[edge[0]][0])**2+(pos[edge[1]][1]-pos[edge[0]][1])**2)}")
+    #     print(f"{edge[1]} - {edge[0]} = {np.sqrt((pos[edge[1]][0]-pos[edge[0]][0])**2+(pos[edge[1]][1]-pos[edge[0]][1])**2)}")
+    
     return index_cells(shapes, pos, N, M)
     
 if __name__ == "__main__":
-    lattice_cells(3,3)
+    lattice_cells(1,2)

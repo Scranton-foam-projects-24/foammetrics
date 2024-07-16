@@ -425,11 +425,11 @@ def lattice_cells(n, m):
         
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
-    # nx.draw(G, pos=pos, node_size=0)
-    # plt.axis('scaled')
-    # plt.show()
+    nx.draw(G, pos=pos, node_size=0)
+    plt.axis('scaled')
+    plt.show()
     
     return index_cells(shapes, pos, N, M)
 
 if __name__ == "__main__":
-    cells = lattice_cells(1, 1)
+    cells = lattice_cells(4,4)
