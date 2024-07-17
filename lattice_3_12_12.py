@@ -107,11 +107,10 @@ def lattice_cells(n, m):
             # Draw edge under dodecagon's left edge
             elif row % 8 == 2 and col % 7 == 1:
                 # If dodecagon lies on left edge, only connect to left edge
-                print(idx)
                 if idx < 2*N:
                     G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([
-                    pos[idx-N+1-(col-int(col/7))][0]+(edge_len/2), # TODO: Reintroduce the col-int(col/7) term so this equals 51 when col=1
+                    pos[idx-N+1][0]+(edge_len/2), # TODO: Reintroduce the col-int(col/7) term so this equals 51 when col=1
                     pos[idx-N+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
                 ])
                 # Otherwise, draw edge to previous dodecagon, making triangle
@@ -160,8 +159,8 @@ def lattice_cells(n, m):
             elif (row % 8 == 6 and col % 7 == 2):
                 G.add_edge(idx, idx-N-1)
                 pos[idx] = np.array([
-                    pos[idx-(2*N)-2][0]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2), 
-                    pos[idx-(2*N)-2][1]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2)
+                    pos[idx-(2*N+(N*int(col/7)))-2][0]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2), 
+                    pos[idx-(2*N+(N*int(col/7)))-2][1]+(edge_len/2)+np.sqrt(edge_len**2-(edge_len/2)**2)
                 ])
             # Draw edge under the right edge
             elif (row % 8 == 3 and col % 7 == 6):
@@ -222,13 +221,13 @@ def lattice_cells(n, m):
     #     print(shape, shapes[shape])
     
     # Show nodes and labels for debugging when necessary
-    nx.draw(G, pos=pos, with_labels=True)
-    # nx.draw(G, pos=pos, node_size=0)
+    # nx.draw(G, pos=pos, with_labels=True)
+    nx.draw(G, pos=pos, node_size=0)
     plt.axis('scaled')
     plt.show()
     
-    for position in pos:
-        print(position)
+    # for position in pos:
+    #     print(position)
     
     # for edge in G.edges:
     #     print(f"({pos[edge[1]][0]},{pos[edge[1]][1]}) - ({pos[edge[0]][0]},{pos[edge[0]][1]}) = {np.sqrt((pos[edge[1]][0]-pos[edge[0]][0])**2+(pos[edge[1]][1]-pos[edge[0]][1])**2)}")
@@ -237,4 +236,4 @@ def lattice_cells(n, m):
     return index_cells(shapes, pos, N, M)
     
 if __name__ == "__main__":
-    lattice_cells(1,2)
+    lattice_cells(2,1)
