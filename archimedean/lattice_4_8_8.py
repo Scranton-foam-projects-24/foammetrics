@@ -336,10 +336,6 @@ def adjust_octagon(pos, idx, N, M):
     M : int
         The width (measured in number of fundamental cells) of the lattice.
 
-    Returns
-    -------
-    None.
-
     """
     # If octagon lies on left edge
     if idx-(3*N) < N:

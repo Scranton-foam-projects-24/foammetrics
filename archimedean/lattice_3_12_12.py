@@ -311,6 +311,30 @@ def index_12_gon(vertices, idx, N, M, pos):
         ]
     }
     return cell
+
+def adjust_pos(pos, N, M):
+    """
+    Modifies pos in place to scale every polyogn to fit within the unit grid.
+
+    Parameters
+    ----------
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    """
+    # print(len(pos))
+    # print(pos)
+    for position in pos:
+        # print(pos[position])
+        pos[position][0] /= (N/8)+1
+        # pos[position][1] += (((4/7) + (2/8) + (8*(np.sqrt((1/49)+(1/64))))) / ((M/7)+0.5))/(12)
+        pos[position][1] /= (M/7)+1
     
 def lattice_cells(n, m):
     """
@@ -515,6 +539,8 @@ def lattice_cells(n, m):
     for i in range(len(triangles)+len(dodecagons)):
         shapes[i] = dodecagons.pop(0) if i % 3 == 1 else triangles.pop(0)
     
+    adjust_pos(pos, N, M)
+    
     # for shape in shapes:
     #     print(shape, shapes[shape])
     
@@ -534,4 +560,4 @@ def lattice_cells(n, m):
     return index_cells(shapes, pos, N, M)
     
 if __name__ == "__main__":
-    lattice_cells(2,2)
+    lattice_cells(1,1)
