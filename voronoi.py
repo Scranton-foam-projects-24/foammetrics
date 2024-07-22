@@ -4,11 +4,10 @@ import turning_function
 import matplotlib.pyplot as plt
 
 from polygon import Polygon
-from voronoi_utils import Voronoi_Utils
+import voronoi_utils as vu
         
 def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
     init_num = dots_num-50
-    v = Voronoi_Utils()
     x_vals = []
     means = []
     deviations = []
@@ -26,7 +25,7 @@ def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
                 2.0, # block size
                 periodic = [True, True]
             )
-            tds = v.turn_dists(cells)
+            tds = vu.turn_dists(cells)
             dists.append(np.mean(tds))
         deviations.append(np.std(dists) / np.sqrt(rounds[-1]))
         x_vals.append(n)
@@ -35,7 +34,6 @@ def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
     return (x_vals, means, N, deviations)
     
 def display_vertices_n_cells(n):
-    v = Voronoi_Utils()
     N = 20
     points = np.random.rand(N, 2)
     colors = np.random.rand(N, 3) 
@@ -51,7 +49,7 @@ def display_vertices_n_cells(n):
         polygon = cell['vertices']
         plt.fill(*zip(*polygon),  color = 'black', alpha=0.1)
     
-    v.plot_diagram(points)
+    vu.plot_diagram(points)
     
     vertices = []
     fig = plt.figure()
@@ -64,11 +62,10 @@ def display_vertices_n_cells(n):
             ax.annotate(i, edge, xytext=[edge[0]+0.01, edge[1]+0.01])
         plt.fill(*zip(*polygon),  color = 'black', alpha=0.1)
         
-    v.plot_diagram(np.array(vertices))
+    vu.plot_diagram(np.array(vertices))
     
 def wtd_vs_unwtd_avg_turn_dists(dots_num, step=50, rounds=30, init_num=50, weighted=False):
     init_num = dots_num-50
-    v = Voronoi_Utils()
     x_vals = []
     means = []
     deviations = []
@@ -88,8 +85,8 @@ def wtd_vs_unwtd_avg_turn_dists(dots_num, step=50, rounds=30, init_num=50, weigh
                 2.0, # block size
                 periodic = [True, True]
             )
-            tds = v.turn_dists_n_gon(cells, weight_by_volume=weighted)
-            kgon_tds = v.turn_dists_n_gon(cells, n=n_gon_sides, weight_by_volume=weighted)
+            tds = vu.turn_dists_n_gon(cells, weight_by_volume=weighted)
+            kgon_tds = vu.turn_dists_n_gon(cells, n=n_gon_sides, weight_by_volume=weighted)
             if weighted:
                 dists.append(np.sum(tds))
                 dists_kgon.append(np.sum(kgon_tds))
@@ -103,7 +100,7 @@ def wtd_vs_unwtd_avg_turn_dists(dots_num, step=50, rounds=30, init_num=50, weigh
         means.append(np.mean(dists))
         means.append(np.mean(dists_kgon))
         
-    v.plot_turn_dists(
+    vu.plot_turn_dists(
         x_vals, 
         means, 
         N, 
@@ -120,7 +117,6 @@ if __name__ == "__main__":
             (0.5, 3.0),
             (1.0, 2.0)]
     init_num = 50
-    v = Voronoi_Utils()
     x_vals = []
     means = []
     deviations = []
@@ -128,7 +124,7 @@ if __name__ == "__main__":
     step = 50
     rounds = range(1, 31)
     np.random.seed([1938430])
-    weighted=True
+    weighted=False
     for n in range(init_num, N+1, step):
         dists = [] # Contains r turning distances 
         # dists_kgon = [] # Contains r turning distances
@@ -140,8 +136,8 @@ if __name__ == "__main__":
                 2.0, # block size
                 periodic = [True, True]
             )
-            tds = v.turn_dists_lattice_tile(cells, tile, weight_by_volume=weighted)
-            # kgon_tds = v.turn_dists_n_gon(cells, n=n_gon_sides, weight_by_volume=weighted)
+            tds = vu.turn_dists_lattice_tile(cells, tile, weight_by_volume=weighted)
+            # kgon_tds = vu.turn_dists_n_gon(cells, n=n_gon_sides, weight_by_volume=weighted)
             if weighted:
                 dists.append(np.sum(tds))
                 # dists_kgon.append(np.sum(kgon_tds))
@@ -155,7 +151,7 @@ if __name__ == "__main__":
         means.append(np.mean(dists))
         # means.append(np.mean(dists_kgon))
         
-    v.plot_tile_turn_dists(
+    vu.plot_tile_turn_dists(
         x_vals, 
         means, 
         N, 
