@@ -74,9 +74,11 @@ def index_3_gon(vertices, idx, N, M, pos):
 
     """
     faces = [] # One value contained in the returned dictionary
-    height = ((N/8)*3) # Height of each column, in number of polygons
+    height = int((N/8)*3) # Height of each column, in number of polygons
     tip = vertices[0] # Vertex of 3-gon which does not lie on horizontal edge
-    
+    # Total number of n-gons found in the NxM lattice
+    total = ((N/8)*(M/7)+((N/8)-1)*((M/7)-1))*3
+
     # If tip of triangle lies below flat edge
     if tip % 2 == 0:
         faces.append(
@@ -125,40 +127,41 @@ def index_3_gon(vertices, idx, N, M, pos):
                 }
             ])
         # Triangle does not have left neighbor
-        elif tip < 4*(N+1):
+        elif tip < 4*(N+1) and idx+height-1 < total:
             faces.append(
                 {'adjacent_cell': idx+height-1,
                  'vertices': [vertices[0], vertices[1]]
                 }
             )
         # Otherwise, triangle does not have right neighbor
-        else:
+        elif idx-height+2 != idx-1:
             faces.append(
                 {'adjacent_cell': idx-height+2,
                  'vertices': [vertices[0], vertices[2]]
                 }
             )
-        
-        # Create cell in format of pyvoro package
-        cell = {
-            'faces': faces,
-            'original': np.array([
-                (pos[vertices[0]][0]+pos[vertices[1]][0]+pos[vertices[2]][0])/3,
-                (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
-            ]),
-            'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
-            'volume': np.abs(
-                    (pos[vertices[0]][0]*(pos[vertices[1]][1]-pos[vertices[2]][1]))+
-                    (pos[vertices[1]][0]*(pos[vertices[2]][1]-pos[vertices[0]][1]))+
-                    (pos[vertices[2]][0]*(pos[vertices[0]][1]-pos[vertices[1]][1]))
-                )/2,
-            'adjacency': [
-                [vertices[0], vertices[1]],
-                [vertices[0], vertices[2]],
-                [vertices[1], vertices[2]]
-            ]
-        }
-        return cell
+
+    # Create cell in format of pyvoro package
+    cell = {
+        'faces': faces,
+        'original': np.array([
+            (pos[vertices[0]][0]+pos[vertices[1]][0]+pos[vertices[2]][0])/3,
+            (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
+        ]),
+        'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
+        'volume': np.abs(
+                (pos[vertices[0]][0]*(pos[vertices[1]][1]-pos[vertices[2]][1]))+
+                (pos[vertices[1]][0]*(pos[vertices[2]][1]-pos[vertices[0]][1]))+
+                (pos[vertices[2]][0]*(pos[vertices[0]][1]-pos[vertices[1]][1]))
+            )/2,
+        'adjacency': [
+            [vertices[0], vertices[1]],
+            [vertices[0], vertices[2]],
+            [vertices[1], vertices[2]]
+        ]
+    }
+    # print(cell)
+    return cell
     
 def index_12_gon(vertices, idx, N, M, pos):
     """
@@ -270,9 +273,6 @@ def index_12_gon(vertices, idx, N, M, pos):
                 }
             ])
     
-        
-    print(idx, faces)
-    
     # Create cell in format of pyvoro package
     cell = {
         'faces': faces,
@@ -307,7 +307,7 @@ def index_12_gon(vertices, idx, N, M, pos):
             [vertices[8], vertices[9]],
             [vertices[9], vertices[10]],
             [vertices[10], vertices[11]],
-            [vertices[11], vertices[0]],
+            [vertices[11], vertices[0]]
         ]
     }
     return cell
@@ -360,6 +360,8 @@ def lattice_cells(n, m):
         #     pos[i] = np.array([0, ((i-3)/8)*((4*np.sqrt(edge_len**2-(edge_len/2)**2))+(3*edge_len))])
     
     while col < M: 
+        # TODO: Shift lattice up to fit within lower bound of unit grid
+        # TODO: Scale every polygon down to fit within unit grid
         pos[N*col] = np.array([(col-int(col/7))/M, 0])
         for row in range(0,N):
             
@@ -518,9 +520,9 @@ def lattice_cells(n, m):
     
     # Show nodes and labels for debugging when necessary
     # nx.draw(G, pos=pos, with_labels=True)
-    nx.draw(G, pos=pos, node_size=0)
-    plt.axis('scaled')
-    plt.show()
+    # nx.draw(G, pos=pos, node_size=0)
+    # plt.axis('scaled')
+    # plt.show()
     
     # for position in pos:
     #     print(position)
@@ -532,4 +534,4 @@ def lattice_cells(n, m):
     return index_cells(shapes, pos, N, M)
     
 if __name__ == "__main__":
-    lattice_cells(3,4)
+    lattice_cells(2,2)
