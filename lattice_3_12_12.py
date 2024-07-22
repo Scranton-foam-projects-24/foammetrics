@@ -3,6 +3,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def index_cells(shapes, pos, N, M):
+    """
+    Combine a list of polygons with information about the positions of each
+    polygon's vertices to produce a list of cells in the same format as the
+    pyvoro package.
+
+    Parameters
+    ----------
+    shapes : dict
+        A dictionary containing the index of the polygon for each key, and a
+        list of vertices in counterclockwise order for each value
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    Returns
+    -------
+    cells : list
+        A list of dictionaries which contain information about each polygon in
+        the NxM lattice, including neighboring cells (and which edge they
+        share), the centroid of each cell, the positions of each vertex which
+        makes up the cell, the volume of the cell, and how the vertices are
+        joined by edges.
+
+    """
     cells = []
     for shape in shapes:
         if len(shapes[shape]) == 3:
@@ -12,28 +41,299 @@ def index_cells(shapes, pos, N, M):
     return cells
 
 def index_3_gon(vertices, idx, N, M, pos):
-    faces = []
-    # print(vertices)
-    # TODO: Figure out how to determine what indices will put a triangle on the
-    # edge of the lattice or not
-    # idx in this context is what position w/in the polys list it is, not any
-    # specific vertex index
-    # It's also possible to go by vertices, but that may prove more challenging
-    if  ((N/8)*3)-1 < idx < ((N/8)*(M/8)*3)-2:
-        print("inside", vertices)
+    """
+    Function which converts information about a 3-gon into a single cell in
+    the same format used by the pyvoro package.
+
+    Parameters
+    ----------
+    vertices : list
+        A list of the vertices which make up the given 3-gon, provided in
+        counterclockwise order.
+    idx : int
+        Value denoting the 3-gon's position in reference to every other 3-gon
+        in the lattice.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+
+    Returns
+    -------
+    cell : dict
+        A dictionary containing detailed information about the provided 3-gon
+        in the same format as the pyvoro package. The information about each
+        cell, or 3-gon, includes neighboring cells (and which edge they share),
+        the centroid of each cell, teh positions of each vertex which makes up
+        the cell, the volume of the cell, and how the vertices are joined by
+        edges.
+
+    """
+    faces = [] # One value contained in the returned dictionary
+    height = ((N/8)*3) # Height of each column, in number of polygons
+    tip = vertices[0] # Vertex of 3-gon which does not lie on horizontal edge
+    
+    # If tip of triangle lies below flat edge
+    if tip % 2 == 0:
+        faces.append(
+            {'adjacent_cell': idx+1,
+             'vertices': [vertices[1], vertices[2]]
+            }
+        )
+        # Triangle has all three neighbors
+        if 4*(N+1) < tip < (M*N)-(4*(N+1)) and tip % 8 != 0 and tip % 8 != 4:
+            faces.extend([
+                {'adjacent_cell': idx-height+1,
+                 'vertices': [vertices[0], vertices[2]]
+                },
+                {'adjacent_cell': idx+height-2,
+                 'vertices': [vertices[0], vertices[1]]
+                }
+            ])
+        # Triangle does not have left neighbor
+        elif tip < 4*(N+1):
+            faces.append(
+                {'adjacent_cell': idx+height-2,
+                 'vertices': [vertices[0], vertices[1]]
+                }
+            )
+        # Otherwise, triangle does not have right neighbor
+        else:
+            faces.append(
+                {'adjacent_cell': idx-height+1,
+                 'vertices': [vertices[0], vertices[2]]
+                }
+            )
+    else: # Tip of triangle lies above flat edge
+        faces.append(
+            {'adjacent_cell': idx-1,
+             'vertices': [vertices[1], vertices[2]]
+            }
+        )
+        # Triangle has all three neighbors
+        if 4*(N+1) < tip < (M*N)-(4*(N+1)) and tip % 8 != 0 and tip % 8 != 4:
+            faces.extend([
+                {'adjacent_cell': idx-height+2,
+                 'vertices': [vertices[0], vertices[2]]
+                },
+                {'adjacent_cell': idx+height-1,
+                 'vertices': [vertices[0], vertices[1]]
+                }
+            ])
+        # Triangle does not have left neighbor
+        elif tip < 4*(N+1):
+            faces.append(
+                {'adjacent_cell': idx+height-1,
+                 'vertices': [vertices[0], vertices[1]]
+                }
+            )
+        # Otherwise, triangle does not have right neighbor
+        else:
+            faces.append(
+                {'adjacent_cell': idx-height+2,
+                 'vertices': [vertices[0], vertices[2]]
+                }
+            )
         
-    # Triangle always has three neighbors,
-    # except for when it lies on the border of the lattice
+        # Create cell in format of pyvoro package
+        cell = {
+            'faces': faces,
+            'original': np.array([
+                (pos[vertices[0]][0]+pos[vertices[1]][0]+pos[vertices[2]][0])/3,
+                (pos[vertices[0]][1]+pos[vertices[1]][1]+pos[vertices[2]][1])/3
+            ]),
+            'vertices': [pos[vertices[0]], pos[vertices[1]], pos[vertices[2]]],
+            'volume': np.abs(
+                    (pos[vertices[0]][0]*(pos[vertices[1]][1]-pos[vertices[2]][1]))+
+                    (pos[vertices[1]][0]*(pos[vertices[2]][1]-pos[vertices[0]][1]))+
+                    (pos[vertices[2]][0]*(pos[vertices[0]][1]-pos[vertices[1]][1]))
+                )/2,
+            'adjacency': [
+                [vertices[0], vertices[1]],
+                [vertices[0], vertices[2]],
+                [vertices[1], vertices[2]]
+            ]
+        }
+        return cell
     
 def index_12_gon(vertices, idx, N, M, pos):
-    faces = []
+    """
+    Function which converts information about a 12-gon into a single cell in
+    the same format used by the pyvoro package.
+
+    Parameters
+    ----------
+    vertices : list
+        A list of the vertices which make up the given 12-gon, provided in
+        counterclockwise order.
+    idx : int
+        Value denoting the 12-gon's position in reference to every other 12-gon
+        in the lattice.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+
+    Returns
+    -------
+    cell : dict
+        A dictionary containing detailed information about the provided 12-gon
+        in the same format as the pyvoro package. The information about each
+        cell, or 12-gon, includes neighboring cells (and which edge they
+        share), the centroid of each cell, teh positions of each vertex which
+        makes up the cell, the volume of the cell, and how the vertices are
+        joined by edges.
+
+    """
+    faces = [] # One value contained in the returned dictionary
+    height = ((N/8)*3) # Height of each column, in number of polygons
     
-    # Even with the implicitly created dodecagons, having 12 neighbors is not
-    # inherently guaranteed, meaning that we have to check if both the 
-    # explicitly and implicitly created dodecagons lie on the border of the
-    # lattice.
+    # Total number of n-gons found in the NxM lattice
+    total = ((N/8)*(M/7)+((N/8)-1)*((M/7)-1))*3
+
+    # Every dodecagon has a top and bottom neighbor
+    faces.append([
+        {'adjacent_cell': idx-1,
+          'vertices': [vertices[8], vertices[9]]
+        },
+        {'adjacent_cell': idx+1,
+          'vertices': [vertices[2], vertices[3]]
+        }
+    ])
+    
+    # If dodecagon's vertical left edge does not lie on edge of the lattice
+    if idx > (height*2)-3:
+        # Add neighbor on left edge
+        faces.append(
+            {'adjacent_cell': idx-(height*2)+3,
+             'vertices': [vertices[5], vertices[6]]
+            }
+        )
+        # If the dodecagon doesn't lie on the bottom edge of the lattice
+        if idx % ((height*2)-3) != 1 and idx-height > 0:
+            # Add lower left 3-gon and 12-gon neighbors
+            faces.extend([
+                {'adjacent_cell': idx-height+1,
+                 'vertices': [vertices[6], vertices[7]]
+                },
+                {'adjacent_cell': idx-height,
+                 'vertices': [vertices[7], vertices[8]]
+                }
+            ])
+        # If the dodecagon doesn't lie on the top edge of the lattice
+        if idx % ((height*2)-3) == 4 and idx+height < total:
+            # Add upper left 3-gon and 12-gon neighbors
+            faces.extend([
+                {'adjacent_cell': idx-height+3,
+                  'vertices': [vertices[3], vertices[4]]
+                },
+                {'adjacent_cell': idx-height+2,
+                  'vertices': [vertices[4], vertices[5]]
+                }
+            ])
+    # If the dodecagon's vertical right edge does not lie on edge of lattice
+    if idx < total-height:
+        # Add neighbor on right edge
+        faces.append(
+            {'adjacent_cell': idx+(height*2)-3,
+              'vertices': [vertices[0], vertices[11]]
+            }
+        )
+        # If the dodecagon doesn't lie on the bottom edge of the lattice
+        if idx % ((height*2)-3) != 1 and idx+height < total:
+            # Add lower right 3-gon and 12-gon neighbors
+            faces.extend([
+                {'adjacent_cell': idx+height-3,
+                  'vertices': [vertices[9], vertices[10]]
+                },
+                {'adjacent_cell': idx+height-2,
+                  'vertices': [vertices[10], vertices[11]]
+                }
+            ])
+        # If the dodecagon doesn't lie on the top edge of the lattice
+        if idx % ((height*2)-3) != 10 and idx-height > 0:
+            # Add upper right 3-gon and 12-gon neighbors
+            faces.extend([
+                {'adjacent_cell': idx+height-1,
+                 'vertices': [vertices[0], vertices[1]]
+                },
+                {'adjacent_cell': idx+height,
+                 'vertices': [vertices[1], vertices[2]]
+                }
+            ])
+    
+        
+    print(idx, faces)
+    
+    # Create cell in format of pyvoro package
+    cell = {
+        'faces': faces,
+        'original': np.array([
+            (pos[vertices[0]][0]+pos[vertices[5]][0])/2,
+            (pos[vertices[2]][1]+pos[vertices[9]][1])/2
+        ]),
+        'vertices': [pos[vertices[0]],
+                     pos[vertices[1]],
+                     pos[vertices[2]],
+                     pos[vertices[3]],
+                     pos[vertices[4]],
+                     pos[vertices[5]],
+                     pos[vertices[6]],
+                     pos[vertices[7]],
+                     pos[vertices[8]],
+                     pos[vertices[9]],
+                     pos[vertices[10]],
+                     pos[vertices[11]]
+                     ],
+        'volume': 
+            3*(2+np.sqrt(3))*(pos[vertices[0]][1]-pos[vertices[11]][1])**2,
+        'adjacency': [
+            [vertices[0], vertices[1]],
+            [vertices[1], vertices[2]],
+            [vertices[2], vertices[3]],
+            [vertices[3], vertices[4]],
+            [vertices[4], vertices[5]],
+            [vertices[5], vertices[6]],
+            [vertices[6], vertices[7]],
+            [vertices[7], vertices[8]],
+            [vertices[8], vertices[9]],
+            [vertices[9], vertices[10]],
+            [vertices[10], vertices[11]],
+            [vertices[11], vertices[0]],
+        ]
+    }
+    return cell
     
 def lattice_cells(n, m):
+    """
+    Produce a NxM archimedian lattice of fundamental cells, where each 
+    fundamental cell is comprised of one 4-gon and two 8-gons.
+
+    Parameters
+    ----------
+    n : int
+        The height (measured in number of fundamental cells) of the lattice.
+    m : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    Returns
+    -------
+    cells: list
+        A list of dictionaries which contain information about each polygon in
+        the NxM lattice, including neighboring cells (and which edge they
+        share), the centroid of each cell, the positions of each vertex which
+        makes up the cell, the volume of the cell, and how the vertices are
+        joined by edges.
+
+    """
     G = nx.Graph()
     pos = {}
     triangles = []
@@ -46,8 +346,6 @@ def lattice_cells(n, m):
     N = 8 * n
     
     col = 1
-    
-    # TODO: Index the polys
     
     for i in range(0, N):        
         if i % 8 == 3:
@@ -73,7 +371,6 @@ def lattice_cells(n, m):
             #     G.add_edge(idx, idx-1)
             #     pos[idx] = np.array([(col+edge_len)/M, ((row-3)/8)*((4*np.sqrt(edge_len**2-(edge_len/2)**2))+(3*edge_len))])
             
-            
             # Draw right edge of dodecagon
             if row % 8 == 4 and col % 7 == 6:
                 G.add_edge(idx, idx-1)
@@ -82,14 +379,15 @@ def lattice_cells(n, m):
                     pos[idx-N+1][0]+(edge_len/2),
                     pos[idx-N+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
                 ])
+                x_offset = 6 if int(col/7) < 1 else 7
                 dodecagons.append([
                     idx, 
                     idx-N+1, 
                     idx-(2*N)+2, 
                     idx-(4*N)+2, 
                     idx-(5*N)+1, 
-                    idx-(6*N),
-                    idx-(6*N)-1,
+                    idx-(x_offset*N),
+                    idx-(x_offset*N)-1,
                     idx-(5*N)-2,
                     idx-(4*N)-3,
                     idx-(2*N)-3,
@@ -111,7 +409,7 @@ def lattice_cells(n, m):
                 if idx < 2*N:
                     G.add_edge(idx, idx-N+1)
                 pos[idx] = np.array([
-                    pos[idx-offset+1][0]+(edge_len/2), # TODO: Reintroduce the col-int(col/7) term so this equals 51 when col=1
+                    pos[idx-offset+1][0]+(edge_len/2),
                     pos[idx-offset+1][1]-np.sqrt(edge_len**2-(edge_len/2)**2)
                 ])
                 # Otherwise, draw edge to previous dodecagon, making triangle
@@ -212,9 +510,6 @@ def lattice_cells(n, m):
         
         col += 1
     
-    # print(triangles)
-    # print(dodecagons)
-    
     for i in range(len(triangles)+len(dodecagons)):
         shapes[i] = dodecagons.pop(0) if i % 3 == 1 else triangles.pop(0)
     
@@ -237,4 +532,4 @@ def lattice_cells(n, m):
     return index_cells(shapes, pos, N, M)
     
 if __name__ == "__main__":
-    lattice_cells(2,4)
+    lattice_cells(3,4)

@@ -3,6 +3,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def index_cells(shapes, pos, N, M):
+    """
+    Combine a list of polygons with information about the positions of each
+    polygon's vertices to produce a list of cells in the same format as the
+    pyvoro package.
+
+    Parameters
+    ----------
+    shapes : dict
+        A dictionary containing the index of the polygon for each key, and a
+        list of vertices in counterclockwise order for each value
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    Returns
+    -------
+    cells : list
+        A list of dictionaries which contain information about each polygon in
+        the NxM lattice, including neighboring cells (and which edge they
+        share), the centroid of each cell, the positions of each vertex which
+        makes up the cell, the volume of the cell, and how the vertices are
+        joined by edges.
+
+    """
     cells = []
     for shape in shapes:
         if len(shapes[shape]) == 4:
@@ -12,6 +41,38 @@ def index_cells(shapes, pos, N, M):
     return cells
 
 def index_4_gon(vertices, idx, N, M, pos):
+    """
+    Function which converts information about a 4-gon into a single cell in
+    the same format used by the pyvoro package.
+
+    Parameters
+    ----------
+    vertices : list
+        A list of the vertices which make up the given 4-gon, provided in
+        counterclockwise order.
+    idx : int
+        Value denoting the 4-gon's position in reference to every other 4-gon
+        in the lattice.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+
+    Returns
+    -------
+    cell : dict
+        A dictionary containing detailed information about the provided 4-gon
+        in the same format as the pyvoro package. The information about each
+        cell, or 4-gon, includes neighboring cells (and which edge they share),
+        the centroid of each cell, teh positions of each vertex which makes up
+        the cell, the volume of the cell, and how the vertices are joined by
+        edges.
+
+    """
     faces = []
     height = (2*int(N/4))-1
     if vertices[0] % N == 4:
@@ -102,6 +163,38 @@ def index_4_gon(vertices, idx, N, M, pos):
     return cell
 
 def index_8_gon(vertices, idx, N, M, pos):
+    """
+    Function which converts information about a 8-gon into a single cell in
+    the same format used by the pyvoro package.
+
+    Parameters
+    ----------
+    vertices : list
+        A list of the vertices which make up the given 8-gon, provided in
+        counterclockwise order.
+    idx : int
+        Value denoting the 8-gon's position in reference to every other 8-gon
+        in the lattice.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+
+    Returns
+    -------
+    cell : dict
+        A dictionary containing detailed information about the provided 8-gon
+        in the same format as the pyvoro package. The information about each
+        cell, or 8-gon, includes neighboring cells (and which edge they share),
+        the centroid of each cell, teh positions of each vertex which makes up
+        the cell, the volume of the cell, and how the vertices are joined by
+        edges.
+
+    """
     faces = []
     height = (2*int(N/4))-1
     # Handle octagons which are completely enclosed by other polygons
@@ -225,6 +318,29 @@ def index_8_gon(vertices, idx, N, M, pos):
     return cell
 
 def adjust_octagon(pos, idx, N, M):
+    """
+    Helper function to adjust the position of each vertex of an 8-gon to make
+    the edges of the 8-gon the same length
+
+    Parameters
+    ----------
+    pos : dict
+        A dictionary containing the index of each vertex for each key, and a
+        numpy array of length 2 containing a [x,y] coordinate pair for each 
+        value.
+    idx : int
+        Value denoting the 8-gon's position in reference to every other 4-gon
+        in the lattice.
+    N : int
+        The height (measured in number of fundamental cells) of the lattice.
+    M : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    Returns
+    -------
+    None.
+
+    """
     # If octagon lies on left edge
     if idx-(3*N) < N:
         pos[idx-(3*N)] = np.array([
@@ -267,6 +383,27 @@ def adjust_octagon(pos, idx, N, M):
         ])
 
 def lattice_cells(n, m):
+    """
+    Produce a NxM archimedian lattice of fundamental cells, where each 
+    fundamental cell is comprised of one 4-gon and two 8-gons.
+
+    Parameters
+    ----------
+    n : int
+        The height (measured in number of fundamental cells) of the lattice.
+    m : int
+        The width (measured in number of fundamental cells) of the lattice.
+
+    Returns
+    -------
+    cells: list
+        A list of dictionaries which contain information about each polygon in
+        the NxM lattice, including neighboring cells (and which edge they
+        share), the centroid of each cell, the positions of each vertex which
+        makes up the cell, the volume of the cell, and how the vertices are
+        joined by edges.
+
+    """
     G = nx.Graph()
     pos = {}
     squares = []
