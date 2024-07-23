@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 # from archimedean.lattice_4_8_8 import Lattice
 from archimedean.lattice_3_12_12 import Lattice
 
-N = 4
-M = 4
+N = 3
+M = 3
 
-# TODO: Cannot handle case where both N and M are 1, program refuses to load
+# TODO: lat3344 Cannot handle case where both N and M are 1, program refuses to load
+# TODO: redefine class names of individual lattices?
+
 cells = Lattice().lattice_cells(N, M)
 
 # print(cells)

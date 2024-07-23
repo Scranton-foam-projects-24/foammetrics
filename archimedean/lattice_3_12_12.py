@@ -330,9 +330,9 @@ class Lattice():
         """
     
         for position in pos:
-            pos[position][0] /= (N/8)
+            pos[position][0] /= (N/8)+(N/24)
             pos[position][1] += ((4/7) + (2/8) + (8*(np.sqrt((1/49)+(1/64)))))/(6*(N/8))
-            pos[position][1] /= (M/7)
+            pos[position][1] /= (M/7)+(M/21)
         
     def lattice_cells(self, n, m):
         """
