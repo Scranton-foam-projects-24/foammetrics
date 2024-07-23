@@ -1,5 +1,5 @@
 from __future__ import division
-from sympy import *
+from sympy import symbols, nsimplify, summation, floor
 
 def turning_distance(n, k):
     i = symbols('i', integer=True)

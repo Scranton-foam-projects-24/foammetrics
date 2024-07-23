@@ -1,9 +1,7 @@
 import numpy as np
 import pyvoro
-import turning_function
 import matplotlib.pyplot as plt
 
-from polygon import Polygon
 import voronoi_utils as vu
         
 def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
@@ -36,8 +34,6 @@ def avg_turn_dists(dots_num, step=50, rounds=30, init_num=50):
 def display_vertices_n_cells(n):
     N = 20
     points = np.random.rand(N, 2)
-    colors = np.random.rand(N, 3) 
-    color_map = {tuple(coords):color for coords, color in zip(points, colors)}
     cells = pyvoro.compute_2d_voronoi(
         points, # point positions, 2D vectors this time.
         [[0.0, 1.0], [0.0, 1.0]], # box size

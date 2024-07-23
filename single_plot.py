@@ -1,17 +1,15 @@
 # import pyvoro
 import numpy as np
 import matplotlib.pyplot as plt
-from archimedean import lattice_3_3_4_4 as lat344
-from archimedean import lattice_4_8_8 as lat488
-from archimedean import lattice_3_12_12 as lat31212
+# from archimedean.lattice_3_3_4_4 import Lattice
+# from archimedean.lattice_4_8_8 import Lattice
+from archimedean.lattice_3_12_12 import Lattice
 
-N = 3
-M = 3
+N = 4
+M = 4
 
 # TODO: Cannot handle case where both N and M are 1, program refuses to load
-# cells = lat3344.lattice_cells(N, M)
-# cells = lat488.lattice_cells(N, M)
-cells = lat31212.lattice_cells(N, M)
+cells = Lattice().lattice_cells(N, M)
 
 # print(cells)
 points = []
